@@ -1,0 +1,205 @@
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; background: #111113; }
+button, input { font: inherit; }
+
+  body { font-family: 'Inter', system-ui, sans-serif; }
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #2e2e33; border-radius: 3px; }
+
+  /* ── Fluid type scale ── */
+  /* Base size grows from 14px at 1280px up to 16px at 1920px */
+  html { font-size: clamp(14px, 0.3vw + 10.2px, 17px); }
+
+  /* ── Nav link underline animation ── */
+  .nav-link {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    padding: 0.4em 0.75em;
+    border-radius: 0.5em;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #888890;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color .15s, background .15s;
+    text-decoration: none;
+  }
+  .nav-link:hover { color: #e2e2e5; background: rgba(255,255,255,0.04); }
+  .nav-link.active { color: #e2e2e5; }
+  .nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: -0.85em;
+    left: 50%; transform: translateX(-50%);
+    width: calc(100% - 0.75em);
+    height: 2px;
+    background: #e5a00d;
+    border-radius: 2px 2px 0 0;
+  }
+  .nav-link svg { opacity: .7; flex-shrink: 0; }
+  .nav-link.active svg { opacity: 1; }
+
+  /* ── Command palette ── */
+  #cmd-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.65);
+    backdrop-filter: blur(6px);
+    z-index: 999;
+    display: none;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 14vh;
+  }
+  #cmd-overlay.open { display: flex; }
+  #cmd-box {
+    width: 580px;
+    background: #1c1c1f;
+    border: 1px solid #3a3a42;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 32px 80px rgba(0,0,0,.8), 0 0 0 1px rgba(255,255,255,.04);
+  }
+  #cmd-input {
+    width: 100%; background: transparent; border: none; outline: none;
+    color: #e2e2e5; font-size: 16px; padding: 18px 20px; font-family: inherit;
+  }
+  #cmd-input::placeholder { color: #888890; }
+  .cmd-result {
+    display: flex; align-items: center; gap: 12px;
+    padding: 9px 12px; cursor: pointer; border-radius: 8px;
+    margin: 0 6px; transition: background .1s;
+  }
+  .cmd-result:hover, .cmd-result.sel { background: rgba(229,160,13,.1); }
+  .cmd-result.sel .cmd-icon { border-color: rgba(229,160,13,.3); color: #e5a00d; }
+  .cmd-icon {
+    width: 32px; height: 32px; background: #242428; border: 1px solid #2e2e33;
+    border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    color: #888890; flex-shrink: 0;
+  }
+  .cmd-section {
+    font-size: 10px; font-weight: 700; letter-spacing: .08em;
+    text-transform: uppercase; color: #888890; padding: 8px 18px 3px;
+  }
+  .cmd-kbd {
+    font-size: 11px; color: #888890; background: #2a2a2f;
+    border: 1px solid #3a3a40; border-radius: 4px; padding: 2px 6px;
+  }
+
+  /* ── Stream cards ── */
+  .stream-card { transition: transform .15s, box-shadow .15s; }
+  .stream-card:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(0,0,0,.5); }
+  .progress-buf { position:absolute;top:0;left:0;height:100%;background:rgba(255,255,255,.08);border-radius:2px; }
+  .progress-play { position:absolute;top:0;left:0;height:100%;background:#e5a00d;border-radius:2px; }
+
+  /* ── V4 design-language corrections ── */
+  /* Stream colors are intentionally distinct from generic status colors. */
+  .stream-transcode .text-accent { color: #e5534b !important; }
+  .stream-transcode .bg-accent { background-color: #e5534b !important; }
+  .stream-transcode .bg-accent\/20 { background-color: rgba(229,83,75,.20) !important; }
+  .stream-transcode .border-accent\/30 { border-color: rgba(229,83,75,.30) !important; }
+  .stream-transcode .text-accent { color: #e5534b !important; }
+  .stream-direct-play .text-success { color: #ebaf00 !important; }
+  .stream-direct-play .bg-success { background-color: #ebaf00 !important; }
+  .stream-direct-play .bg-success\/20 { background-color: rgba(235,175,0,.20) !important; }
+  .stream-direct-play .border-success\/30 { border-color: rgba(235,175,0,.30) !important; }
+  .stream-direct-stream .text-info { color: #eeeeee !important; }
+  .stream-direct-stream .bg-info { background-color: #eeeeee !important; }
+  .stream-direct-stream .bg-info\/20 { background-color: rgba(238,238,238,.14) !important; }
+  .stream-direct-stream .border-info\/30 { border-color: rgba(238,238,238,.24) !important; }
+  .stream-types .bg-success { background-color: #ebaf00 !important; }
+  .stream-types .bg-info { background-color: #eeeeee !important; }
+  .stream-types .bg-accent { background-color: #e5534b !important; }
+  .stream-types .text-accent { color: #e5534b !important; }
+
+  /* Decision badges sit over artwork: never rely on translucent artwork
+     beneath the text for contrast. */
+  .decision-badge {
+    position: relative;
+    background: rgba(17,17,19,.86) !important;
+    border-width: 1px !important;
+    border-style: solid !important;
+    border-color: rgba(255,255,255,.14) !important;
+    box-shadow: 0 2px 6px rgba(0,0,0,.28);
+    backdrop-filter: blur(6px);
+  }
+  .decision-badge::before {
+    content: '';
+    display: inline-block;
+    width: .45em;
+    height: .45em;
+    margin-right: .45em;
+    border-radius: 50%;
+    background: currentColor;
+    vertical-align: .08em;
+  }
+  .stream-transcode .decision-badge { color: #e5534b !important; }
+  .stream-direct-play .decision-badge { color: #ebaf00 !important; }
+  .stream-direct-stream .decision-badge { color: #d8d8dc !important; }
+
+  /* Keep cards usable on narrow self-hosted/mobile installations. */
+  @media (max-width: 767px) {
+    body { display: block !important; height: auto !important; min-height: 100vh; overflow-y: auto !important; overflow-x: hidden !important; }
+    header > div:first-child { flex-wrap: wrap; height: auto !important; min-height: 3.75rem; padding-top: .65rem; padding-bottom: .65rem; }
+    header > div:first-child > button { order: 5; width: 100% !important; }
+    header > div:nth-child(2) { overflow-x: auto; }
+    header > div:nth-child(2) .nav-link { font-size: .75rem; }
+    main { display: block !important; height: auto !important; overflow: visible !important; }
+    .stream-card { width: 100% !important; }
+    main [style*="grid-template-columns:1fr 25vw"] { display: block !important; }
+    main [style*="grid-template-columns:1fr 25vw"] > * { margin-bottom: 12px; }
+    .library-stat-grid { grid-template-columns: 1fr !important; }
+  }
+
+  .library-stat-grid { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+  @media (max-width: 1439px) and (min-width: 768px) {
+    .library-stat-grid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+  }
+  @media (max-width: 1023px) and (min-width: 768px) {
+    .library-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  }
+  @media (max-width: 767px) {
+    .library-stat-grid { grid-template-columns: 1fr !important; }
+  }
+  .library-row { transition: background .15s; }
+  .library-row:hover { background: #242428; }
+  @media (max-width: 640px) {
+    .library-row { display: flex; flex-wrap: wrap; row-gap: .35rem; }
+    .library-row > :first-child { width: 100%; }
+    .library-detail { display: block; flex: 1 1 auto; }
+    .library-metrics { display: none !important; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  }
+
+
+  /* Default: advanced OFF */
+  :root {
+    --detail-h: 0px;
+    --detail-o: 0;
+    --t-bg: #242428;
+    --t-border: #2e2e33;
+    --t-text: #888890;
+    --t-track: #3a3a40;
+    --t-thumb: translateX(0px);
+  }
+  /* Advanced ON */
+  :root.advanced-on {
+    --detail-h: 500px;
+    --detail-o: 1;
+    --t-bg: rgba(229,160,13,0.1);
+    --t-border: rgba(229,160,13,0.3);
+    --t-text: #e5a00d;
+    --t-track: #e5a00d;
+    --t-thumb: translateX(14px);
+  }
+  .detail-rows {
+    /* Let CSS vars drive max-height for the collapse animation */
+    max-height: var(--detail-h);
+    opacity: var(--detail-o);
+  }
+

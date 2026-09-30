@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tautulli — Dashboard V4 Full Page States</title>
+  <style>
+    :root { --bg:#111113; --surface:#1c1c1f; --surface2:#242428; --surface3:#2a2a2f; --border:#2e2e33; --accent:#e5a00d; --text:#e2e2e5; --muted:#888890; --danger:#e5534b; --success:#3fb950; --info:#58a6ff; }
+    * { box-sizing:border-box; }
+    html { font-size:clamp(14px,.3vw + 10.2px,17px); }
+    body { margin:0; min-height:100vh; background:var(--bg); color:var(--text); font-family:Inter,system-ui,sans-serif; }
+    button { font:inherit; }
+    .top { background:var(--surface); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:2; }
+    .top-row { min-height:3.75rem; display:flex; align-items:center; gap:1rem; padding:.7rem clamp(1rem,2vw,2.5rem); }
+    .brand { display:flex; align-items:center; gap:.6rem; font-weight:700; white-space:nowrap; }
+    .brand-mark { width:2.25rem; height:2.25rem; border-radius:.6rem; display:grid; place-items:center; color:var(--accent); background:rgba(229,160,13,.12); border:1px solid rgba(229,160,13,.25); }
+    .server { color:var(--muted); font-size:.75rem; padding:.4rem .7rem; background:var(--surface2); border:1px solid var(--border); border-radius:999px; }
+    .server::before { content:''; display:inline-block; width:.4rem; height:.4rem; margin-right:.4rem; border-radius:50%; background:var(--success); }
+    .spacer { flex:1; }
+    .user { color:var(--muted); font-size:.8rem; }
+    .nav { display:flex; gap:.2rem; overflow:auto; padding:0 clamp(1rem,2vw,2.5rem); min-height:2.75rem; }
+    .nav a { color:var(--muted); text-decoration:none; padding:.65rem .75rem; white-space:nowrap; font-size:.8rem; }
+    .nav a.active { color:var(--text); border-bottom:2px solid var(--accent); }
+    main { max-width:1800px; margin:auto; padding:clamp(1.25rem,2vw,2.5rem); }
+    .review-bar { display:flex; flex-wrap:wrap; align-items:center; gap:.5rem; padding:.75rem 1rem; margin-bottom:1.5rem; background:var(--surface); border:1px solid var(--border); border-radius:.7rem; }
+    .review-bar strong { font-size:.75rem; margin-right:.25rem; }
+    .state-button { cursor:pointer; color:var(--muted); background:var(--surface2); border:1px solid var(--border); border-radius:.4rem; padding:.4rem .65rem; font-size:.7rem; }
+    .state-button.active { color:#111113; background:var(--accent); border-color:var(--accent); }
+    .section { margin-bottom:2rem; }
+    .section-head { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:.8rem; }
+    h1,h2,h3,p { margin:0; } h1 { font-size:1.25rem; } h2 { font-size:1rem; } h3 { font-size:.85rem; }
+    .sub { color:var(--muted); font-size:.7rem; margin-top:.25rem; }
+    .controls { display:flex; gap:.35rem; align-items:center; color:var(--muted); font-size:.7rem; }
+    .control { padding:.4rem .65rem; background:var(--surface2); border:1px solid var(--border); border-radius:.4rem; }
+    .activity-grid { display:flex; flex-wrap:wrap; gap:1rem; }
+    .stream, .card, .library-table { background:var(--surface); border:1px solid var(--border); border-radius:.7rem; overflow:hidden; }
+    .stream { width:clamp(18rem,29vw,26rem); }
+    .art { height:7.5rem; background:linear-gradient(120deg,#30303a,#17171a 70%); position:relative; }
+    .art::after { content:'MEDIA'; position:absolute; inset:auto 1rem 1rem; color:rgba(255,255,255,.25); font-size:1.5rem; font-weight:700; letter-spacing:.15em; }
+    .stream-body { padding:.8rem; }
+    .stream-title { display:flex; justify-content:space-between; gap:.5rem; font-size:.82rem; font-weight:600; }
+    .badge { color:var(--accent); background:rgba(17,17,19,.86); border:1px solid rgba(255,255,255,.14); border-radius:999px; padding:.22rem .45rem; font-size:.65rem; white-space:nowrap; }
+    .progress { height:.35rem; margin:.8rem 0 .45rem; background:var(--surface3); border-radius:99px; overflow:hidden; }
+    .progress i { display:block; width:62%; height:100%; background:var(--accent); }
+    .details { display:flex; justify-content:space-between; color:var(--muted); font-size:.68rem; }
+    .kpis { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:.75rem; margin-bottom:.75rem; }
+    .kpi { padding:1rem; background:var(--surface); border:1px solid var(--border); border-radius:.7rem; }
+    .kpi strong { display:block; font-size:1.35rem; } .kpi span { color:var(--muted); font-size:.7rem; }
+    .stat-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:.75rem; }
+    .card { min-height:12rem; padding:1rem; }
+    .card-head { display:flex; justify-content:space-between; padding-bottom:.7rem; border-bottom:1px solid var(--border); }
+    .rank { display:flex; gap:.65rem; align-items:center; padding:.65rem 0; border-bottom:1px solid rgba(46,46,51,.6); font-size:.75rem; }
+    .rank:last-child { border-bottom:0; } .rank b { color:var(--muted); width:1rem; } .rank span:nth-child(2) { flex:1; }
+    .library-table { display:grid; }
+    .library-row { display:grid; grid-template-columns:minmax(12rem,1fr) 8rem 8rem 8rem; gap:1rem; align-items:center; padding:.8rem 1rem; border-bottom:1px solid var(--border); font-size:.75rem; }
+    .library-row:last-child { border-bottom:0; } .library-row small { display:block; color:var(--muted); font-size:.65rem; margin-top:.15rem; }
+    .posters { display:grid; grid-template-columns:repeat(8,minmax(0,1fr)); gap:.75rem; }
+    .poster { min-width:0; } .poster-art { aspect-ratio:2/3; background:linear-gradient(145deg,var(--surface3),#17171a); border-radius:.5rem; }
+    .poster p { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-top:.35rem; font-size:.68rem; } .poster small { color:var(--muted); font-size:.62rem; }
+    .empty, .notice { width:100%; padding:2.2rem 1rem; text-align:center; background:var(--surface); border:1px solid var(--border); border-radius:.7rem; }
+    .notice { text-align:left; border-left:2px solid var(--danger); } .notice strong { color:var(--danger); font-size:.8rem; } .notice p { color:var(--muted); font-size:.72rem; margin-top:.3rem; }
+    .skeleton { height:.75rem; border-radius:.25rem; background:linear-gradient(90deg,var(--surface2),var(--surface3),var(--surface2)); background-size:200% 100%; animation:shimmer 1.4s infinite; }
+    .skeleton.large { height:7.5rem; margin:-1rem -1rem .8rem; border-radius:0; } .skeleton.short { width:40%; } .skeleton.line { margin-top:.7rem; }
+    .loading .dynamic-content { display:none; } .loading .loading-content { display:block !important; }
+    .loading-content { display:none; }
+    @keyframes shimmer { to { background-position:-200% 0; } }
+    [data-mode="empty"] .normal-only, [data-mode="offline"] .normal-only { display:none; }
+    [data-mode="empty"] .empty-only, [data-mode="offline"] .offline-only, [data-mode="partial"] .partial-only { display:block; }
+    .empty-only,.offline-only,.partial-only { display:none; }
+    @media (max-width:1100px) { .stat-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } .posters { grid-template-columns:repeat(6,minmax(0,1fr)); } }
+    @media (max-width:800px) { .kpis,.stat-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .posters { grid-template-columns:repeat(4,minmax(0,1fr)); } .library-row { grid-template-columns:1fr 5rem 5rem; } .library-row > :last-child { display:none; } }
+    @media (max-width:600px) { .top-row { flex-wrap:wrap; } .server { order:3; } .kpis,.stat-grid { grid-template-columns:1fr; } .stream { width:100%; } .library-row { grid-template-columns:1fr 5rem; } .library-row > :nth-child(3) { display:none; } }
+    @media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation:none !important; } }
+  </style>
+</head>
+<body data-mode="normal">
+<header class="top"><div class="top-row"><div class="brand"><span class="brand-mark">▶</span>Tautulli</div><span class="server">My Plex Server</span><span class="spacer"></span><span class="user">Admin · Administrator</span></div><nav class="nav"><a class="active" href="#">Dashboard</a><a href="#">History</a><a href="#">Users</a><a href="#">Libraries</a><a href="#">Graphs</a><a href="#">Recently Added</a><a href="#">Sync</a><a href="#">Logs</a></nav></header>
+<main>
+  <div class="review-bar"><strong>Preview state:</strong><button class="state-button active" data-set="normal">Normal</button><button class="state-button" data-set="loading">Loading</button><button class="state-button" data-set="empty">No activity</button><button class="state-button" data-set="offline">Plex unavailable</button><button class="state-button" data-set="partial">Partial failure</button></div>
+
+  <section class="section"><div class="section-head"><div><h1>Activity</h1><p class="sub">Live sessions and server activity</p></div><div class="controls"><span class="control">Advanced</span><span class="control">Auto-refresh 10s</span></div></div>
+    <div class="normal-only dynamic-content activity-grid"><article class="stream"><div class="art"></div><div class="stream-body"><div class="stream-title"><span>Dune: Part Two</span><span class="badge">Transcode</span></div><p class="sub">john_doe · Plex Web · WAN</p><div class="progress"><i></i></div><div class="details"><span>1:42:10 / 2:46:00</span><span>20 Mbps</span></div></div></article><article class="stream"><div class="art"></div><div class="stream-body"><div class="stream-title"><span>Breaking Bad</span><span class="badge">Direct Play</span></div><p class="sub">sarah_k · Apple TV · LAN</p><div class="progress"><i style="width:38%"></i></div><div class="details"><span>18:32 / 48:00</span><span>8 Mbps</span></div></div></article><article class="stream"><div class="art"></div><div class="stream-body"><div class="stream-title"><span>Bohemian Rhapsody</span><span class="badge">Direct Stream</span></div><p class="sub">mike99 · Android · Paused</p><div class="progress"><i style="width:55%"></i></div><div class="details"><span>3:18 / 5:55</span><span>1.4 Mbps</span></div></div></article></div>
+    <div class="loading-content"><div class="activity-grid"><article class="stream card"><div class="skeleton large"></div><div class="skeleton short"></div><div class="skeleton line"></div><div class="skeleton line"></div></article><article class="stream card"><div class="skeleton large"></div><div class="skeleton short"></div><div class="skeleton line"></div><div class="skeleton line"></div></article><article class="stream card"><div class="skeleton large"></div><div class="skeleton short"></div><div class="skeleton line"></div><div class="skeleton line"></div></article></div></div>
+    <div class="empty-only empty"><h3>Nothing is currently being played</h3><p class="sub">New activity will appear here automatically.</p></div><div class="offline-only notice"><strong>Unable to reach Plex</strong><p>Tautulli will retry automatically. Existing data may be out of date.</p></div>
+  </section>
+
+  <section class="section"><div class="section-head"><div><h2>Watch Statistics</h2><p class="sub">Last 30 days</p></div><div class="controls"><span class="control">Plays</span><span class="control">Last 30 days</span></div></div>
+    <div class="normal-only dynamic-content"><div class="kpis"><div class="kpi"><strong>2,847</strong><span>Total Plays · ↑ 12%</span></div><div class="kpi"><strong>1,284h</strong><span>Watch Time · ↑ 8%</span></div><div class="kpi"><strong>8</strong><span>Unique Viewers · — same</span></div><div class="kpi"><strong>6</strong><span>Peak Concurrent · ↓ 1</span></div></div><div class="stat-grid"><div class="card"><div class="card-head"><h3>Movies</h3><span class="sub">Top media</span></div><div class="rank"><b>1</b><span>Oppenheimer</span><strong>47</strong></div><div class="rank"><b>2</b><span>Dune: Part Two</span><strong>38</strong></div><div class="rank"><b>3</b><span>The Substance</span><strong>31</strong></div></div><div class="card"><div class="card-head"><h3>TV Shows</h3><span class="sub">Top media</span></div><div class="rank"><b>1</b><span>Breaking Bad</span><strong>124</strong></div><div class="rank"><b>2</b><span>The Bear</span><strong>89</strong></div><div class="rank"><b>3</b><span>Shōgun</span><strong>67</strong></div></div><div class="card"><div class="card-head"><h3>Music</h3><span class="sub">Top media</span></div><div class="rank"><b>1</b><span>Taylor Swift</span><strong>214</strong></div><div class="rank"><b>2</b><span>Queen</span><strong>154</strong></div><div class="rank"><b>3</b><span>Elton John</span><strong>118</strong></div></div><div class="card"><div class="card-head"><h3>Home Videos</h3><span class="sub">Top media</span></div><div class="rank"><b>1</b><span>Summer 2024</span><strong>43</strong></div><div class="rank"><b>2</b><span>Christmas 2023</span><strong>28</strong></div><div class="rank"><b>3</b><span>Spring Break</span><strong>19</strong></div></div></div></div>
+    <div class="loading-content"><div class="kpis"><div class="kpi"><div class="skeleton short"></div><div class="skeleton line"></div></div><div class="kpi"><div class="skeleton short"></div><div class="skeleton line"></div></div><div class="kpi"><div class="skeleton short"></div><div class="skeleton line"></div></div><div class="kpi"><div class="skeleton short"></div><div class="skeleton line"></div></div></div><div class="stat-grid"><div class="card"><div class="skeleton short"></div><div class="skeleton line"></div><div class="skeleton line"></div><div class="skeleton line"></div></div><div class="card"><div class="skeleton short"></div><div class="skeleton line"></div><div class="skeleton line"></div><div class="skeleton line"></div></div><div class="card"><div class="skeleton short"></div><div class="skeleton line"></div><div class="skeleton line"></div><div class="skeleton line"></div></div><div class="card"><div class="skeleton short"></div><div class="skeleton line"></div><div class="skeleton line"></div><div class="skeleton line"></div></div></div></div>
+    <div class="empty-only empty"><h3>No watch statistics yet</h3><p class="sub">Statistics will appear after media is played.</p></div><div class="offline-only notice"><strong>Watch statistics are unavailable</strong><p>We’ll retry when Plex is reachable.</p></div><div class="partial-only notice"><strong>Watch statistics are temporarily unavailable</strong><p>Live activity and recently added content are still available.</p></div>
+  </section>
+
+  <section class="section"><div class="section-head"><div><h2>Library Overview</h2><p class="sub">Top media by library</p></div><a class="sub" href="#">View all libraries →</a></div><div class="normal-only dynamic-content library-table"><div class="library-row"><strong>Movies<small>Movie library</small></strong><span>1,248 items</span><span>32 added</span><span>84 plays</span></div><div class="library-row"><strong>TV Shows<small>Show library</small></strong><span>384 shows</span><span>12 added</span><span>61 plays</span></div><div class="library-row"><strong>Music<small>Artist library</small></strong><span>8,420 tracks</span><span>94 added</span><span>37 plays</span></div><div class="library-row"><strong>Home Videos<small>Video library</small></strong><span>92 videos</span><span>4 added</span><span>12 plays</span></div></div><div class="loading-content card"><div class="skeleton short"></div><div class="skeleton line"></div><div class="skeleton line"></div><div class="skeleton line"></div></div><div class="empty-only empty"><h3>No library statistics yet</h3><p class="sub">Watch activity will appear after media is played.</p></div></section>
+
+  <section class="section"><div class="section-head"><div><h2>Recently Added</h2><p class="sub">Latest additions to your libraries</p></div><div class="controls"><span class="control">All media</span><span class="control">View all →</span></div></div><div class="normal-only dynamic-content posters"><div class="poster"><div class="poster-art"></div><p>Civil War</p><small>2d ago</small></div><div class="poster"><div class="poster-art"></div><p>Interstellar</p><small>3d ago</small></div><div class="poster"><div class="poster-art"></div><p>The Substance</p><small>4d ago</small></div><div class="poster"><div class="poster-art"></div><p>Conclave</p><small>5d ago</small></div><div class="poster"><div class="poster-art"></div><p>Shōgun</p><small>1w ago</small></div><div class="poster"><div class="poster-art"></div><p>Alien: Romulus</p><small>1w ago</small></div><div class="poster"><div class="poster-art"></div><p>Longlegs</p><small>1w ago</small></div><div class="poster"><div class="poster-art"></div><p>Twisters</p><small>2w ago</small></div></div><div class="loading-content posters"><div class="poster"><div class="skeleton" style="aspect-ratio:2/3;height:auto"></div></div><div class="poster"><div class="skeleton" style="aspect-ratio:2/3;height:auto"></div></div><div class="poster"><div class="skeleton" style="aspect-ratio:2/3;height:auto"></div></div><div class="poster"><div class="skeleton" style="aspect-ratio:2/3;height:auto"></div></div><div class="poster"><div class="skeleton" style="aspect-ratio:2/3;height:auto"></div></div></div><div class="offline-only notice"><strong>Recently added data may be out of date</strong><p>We’ll try again when Plex is reachable.</p></div></section>
+</main>
+<script>
+  const root = document.body;
+  const buttons = document.querySelectorAll('[data-set]');
+  buttons.forEach((button) => button.addEventListener('click', () => {
+    const mode = button.dataset.set;
+    root.dataset.mode = mode;
+    root.classList.toggle('loading', mode === 'loading');
+    buttons.forEach((item) => item.classList.toggle('active', item === button));
+  }));
+</script>
+</body>
+</html>

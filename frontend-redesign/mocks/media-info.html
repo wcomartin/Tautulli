@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tautulli — Dune: Part Two</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        bg:'#111113', surface:'#1c1c1f', surface2:'#242428',
+        surface3:'#2a2a2f', border:'#2e2e33', accent:'#e5a00d',
+        muted:'#888890', danger:'#e5534b', success:'#3fb950', info:'#58a6ff'
+      }
+    }
+  }
+}
+</script>
+<style>
+  body{font-family:'Inter',system-ui,sans-serif;}
+  ::-webkit-scrollbar{width:5px;height:5px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:#2e2e33;border-radius:3px;}
+  .nav-item.active{background:rgba(229,160,13,0.12);color:#e5a00d;}
+  .tab{border-bottom:2px solid transparent;color:#888890;transition:all .15s;}
+  .tab:hover{color:#fff;}
+  .tab.active{border-bottom-color:#e5a00d;color:#e5a00d;}
+</style>
+</head>
+<body class="bg-bg text-white overflow-hidden h-screen flex flex-col">
+
+<!-- TOP BAR -->
+<header class="h-12 min-h-[48px] bg-surface border-b border-border flex items-center px-4 gap-3 z-50">
+  <div class="flex items-center gap-2 text-accent font-bold text-[15px] mr-2">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><polygon points="10,8 16,12 10,16"/></svg>
+    Tautulli
+  </div>
+  <span class="text-muted text-sm">/</span>
+  <a href="#" class="text-muted text-sm hover:text-white transition-colors">Movies</a>
+  <span class="text-muted text-sm">/</span>
+  <span class="text-sm font-medium">Dune: Part Two</span>
+  <div class="flex-1"></div>
+  <div class="flex items-center gap-2 bg-surface3 border border-border rounded-md px-3 py-1.5 w-52">
+    <svg width="13" height="13" fill="none" stroke="#888890" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input placeholder="Search…" class="bg-transparent outline-none text-sm text-white placeholder-muted w-full"/>
+    <span class="text-[10px] text-muted bg-surface2 border border-border rounded px-1 py-0.5">⌘K</span>
+  </div>
+  <div class="flex items-center gap-2 px-2 py-1 bg-surface2 border border-border rounded-md text-xs text-muted">
+    <div class="w-2 h-2 rounded-full bg-success"></div>My Plex Server
+  </div>
+  <div class="flex items-center gap-2 px-2 py-1 rounded-md hover:bg-surface3 cursor-pointer">
+    <img src="https://i.pravatar.cc/28?u=admin" class="w-7 h-7 rounded-full border border-border"/>
+    <span class="text-sm font-medium">Admin</span>
+  </div>
+</header>
+
+<div class="flex flex-1 overflow-hidden">
+
+<!-- SIDEBAR -->
+<aside class="w-[220px] min-w-[220px] bg-surface border-r border-border flex flex-col overflow-y-auto">
+  <nav class="flex-1 p-2 space-y-0.5 pt-3">
+    <a href="dashboard.html" class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-md text-[13.5px] font-medium text-muted hover:bg-surface2 hover:text-white transition-colors">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard
+    </a>
+    <a href="history.html" class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-md text-[13.5px] font-medium text-muted hover:bg-surface2 hover:text-white transition-colors">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>History
+    </a>
+    <a href="users.html" class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-md text-[13.5px] font-medium text-muted hover:bg-surface2 hover:text-white transition-colors">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Users
+    </a>
+    <a href="#" class="nav-item active flex items-center gap-2.5 px-3 py-2 rounded-md text-[13.5px] font-medium transition-colors">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Libraries
+    </a>
+    <a href="#" class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-md text-[13.5px] font-medium text-muted hover:bg-surface2 hover:text-white transition-colors">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Graphs
+    </a>
+    <a href="#" class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-md text-[13.5px] font-medium text-muted hover:bg-surface2 hover:text-white transition-colors">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Recently Added
+    </a>
+    <a href="#" class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-md text-[13.5px] font-medium text-muted hover:bg-surface2 hover:text-white transition-colors">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Logs
+    </a>
+  </nav>
+  <div class="p-2 border-t border-border">
+    <a href="#" class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-md text-[13.5px] font-medium text-muted hover:bg-surface2 hover:text-white transition-colors">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings
+    </a>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="flex-1 overflow-y-auto bg-bg">
+
+  <!-- HERO: full-bleed backdrop -->
+  <div class="relative h-72 overflow-hidden">
+    <img src="https://image.tmdb.org/t/p/w1280/eZ239CUp1d6OryZEBPnO2n87gMG.jpg"
+         class="w-full h-full object-cover object-top opacity-60"/>
+    <div class="absolute inset-0 bg-gradient-to-t from-bg via-bg/60 to-transparent"></div>
+    <div class="absolute inset-0 bg-gradient-to-r from-bg/80 via-transparent to-transparent"></div>
+
+    <!-- Content overlaid on backdrop -->
+    <div class="absolute bottom-0 left-0 right-0 p-6 flex items-end gap-6">
+      <!-- Poster -->
+      <img src="https://image.tmdb.org/t/p/w342/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg"
+           class="w-28 rounded-xl border border-white/10 shadow-2xl flex-shrink-0 -mb-10"/>
+      <!-- Title block -->
+      <div class="pb-2">
+        <div class="flex items-center gap-2 mb-2 flex-wrap">
+          <span class="text-xs px-2 py-0.5 bg-black/60 border border-white/10 rounded font-medium text-muted uppercase tracking-wide">PG-13</span>
+          <span class="text-xs px-2 py-0.5 bg-black/60 border border-white/10 rounded font-medium text-muted">2024</span>
+          <span class="text-xs px-2 py-0.5 bg-black/60 border border-white/10 rounded font-medium text-muted">2h 46m</span>
+          <span class="text-xs px-2 py-0.5 bg-black/60 border border-white/10 rounded font-medium text-muted">4K · HDR</span>
+        </div>
+        <h1 class="text-3xl font-bold drop-shadow-lg">Dune: Part Two</h1>
+        <div class="flex items-center gap-3 mt-1.5 flex-wrap">
+          <div class="flex items-center gap-1">
+            <svg width="13" height="13" fill="#e5a00d" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
+            <span class="text-sm font-semibold text-accent">8.5</span>
+            <span class="text-xs text-muted">TMDB</span>
+          </div>
+          <span class="text-muted text-xs">Science Fiction · Adventure · Drama</span>
+        </div>
+      </div>
+      <!-- Action buttons -->
+      <div class="ml-auto pb-2 flex items-center gap-2">
+        <button class="flex items-center gap-2 px-3 py-2 bg-black/60 border border-white/10 rounded-lg text-sm text-muted hover:text-white hover:border-white/20 transition-colors backdrop-blur-sm">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21"/></svg>
+          Open in Plex
+        </button>
+        <button class="flex items-center gap-2 px-3 py-2 bg-black/60 border border-white/10 rounded-lg text-sm text-muted hover:text-white hover:border-white/20 transition-colors backdrop-blur-sm">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.18-4.83"/></svg>
+          Refresh Metadata
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABS (sticky below hero) -->
+  <div class="sticky top-0 z-10 bg-bg/95 backdrop-blur border-b border-border px-6 pt-10">
+    <div class="flex gap-1">
+      <button class="tab active px-4 py-2.5 text-sm font-medium">Overview</button>
+      <button class="tab px-4 py-2.5 text-sm font-medium">Cast &amp; Crew</button>
+      <button class="tab px-4 py-2.5 text-sm font-medium">Files</button>
+      <button class="tab px-4 py-2.5 text-sm font-medium">History</button>
+      <button class="tab px-4 py-2.5 text-sm font-medium">Stats</button>
+    </div>
+  </div>
+
+  <!-- OVERVIEW TAB CONTENT -->
+  <div class="p-6 space-y-8">
+
+    <!-- Summary + quick stats row -->
+    <div class="grid grid-cols-3 gap-6">
+      <!-- Summary -->
+      <div class="col-span-2">
+        <h2 class="text-sm font-semibold text-muted uppercase tracking-wider mb-3">Synopsis</h2>
+        <p class="text-sm text-white/80 leading-relaxed">
+          Follow the mythic journey of Paul Atreides as he unites with Chani and the Fremen while on a warpath of revenge against the conspirators who destroyed his family. Facing a choice between the love of his life and the fate of the known universe, Paul endeavors to prevent a terrible future only he can foresee.
+        </p>
+        <div class="flex flex-wrap gap-2 mt-4">
+          <span class="px-2.5 py-1 bg-surface2 border border-border rounded-full text-xs text-muted">Science Fiction</span>
+          <span class="px-2.5 py-1 bg-surface2 border border-border rounded-full text-xs text-muted">Adventure</span>
+          <span class="px-2.5 py-1 bg-surface2 border border-border rounded-full text-xs text-muted">Drama</span>
+        </div>
+        <div class="mt-4 grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
+          <div class="flex gap-2"><span class="text-muted w-20 flex-shrink-0">Director</span><span>Denis Villeneuve</span></div>
+          <div class="flex gap-2"><span class="text-muted w-20 flex-shrink-0">Studio</span><span>Legendary Entertainment</span></div>
+          <div class="flex gap-2"><span class="text-muted w-20 flex-shrink-0">Released</span><span>March 1, 2024</span></div>
+          <div class="flex gap-2"><span class="text-muted w-20 flex-shrink-0">Runtime</span><span>2h 46m</span></div>
+        </div>
+      </div>
+
+      <!-- Quick watch stats -->
+      <div>
+        <h2 class="text-sm font-semibold text-muted uppercase tracking-wider mb-3">Watch Stats</h2>
+        <div class="space-y-3">
+          <div class="bg-surface border border-border rounded-xl p-4 text-center">
+            <p class="text-3xl font-bold text-accent">47</p>
+            <p class="text-xs text-muted mt-1">Total Plays</p>
+          </div>
+          <div class="bg-surface border border-border rounded-xl p-4 text-center">
+            <p class="text-3xl font-bold">8</p>
+            <p class="text-xs text-muted mt-1">Unique Viewers</p>
+          </div>
+          <div class="bg-surface border border-border rounded-xl p-4 text-center">
+            <p class="text-xl font-bold">130h 02m</p>
+            <p class="text-xs text-muted mt-1">Total Watch Time</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cast -->
+    <div>
+      <h2 class="text-sm font-semibold text-muted uppercase tracking-wider mb-3">Cast</h2>
+      <div class="flex gap-3 overflow-x-auto pb-2">
+        <!-- Cast cards using real TMDB person images -->
+        <div class="flex-shrink-0 text-center w-20 cursor-pointer group">
+          <div class="w-20 h-20 rounded-full overflow-hidden border border-border mx-auto mb-2 group-hover:border-accent/40 transition-colors">
+            <img src="https://image.tmdb.org/t/p/w185/2MSGMrCVmvYXJZbcFZSmANBX6Mv.jpg" class="w-full h-full object-cover"/>
+          </div>
+          <p class="text-[11px] font-medium truncate">Timothée Chalamet</p>
+          <p class="text-[10px] text-muted truncate">Paul Atreides</p>
+        </div>
+        <div class="flex-shrink-0 text-center w-20 cursor-pointer group">
+          <div class="w-20 h-20 rounded-full overflow-hidden border border-border mx-auto mb-2 group-hover:border-accent/40 transition-colors">
+            <img src="https://image.tmdb.org/t/p/w185/xDssAaJGAYzKM9VV7bHxA5aqNlT.jpg" class="w-full h-full object-cover"/>
+          </div>
+          <p class="text-[11px] font-medium truncate">Zendaya</p>
+          <p class="text-[10px] text-muted truncate">Chani</p>
+        </div>
+        <div class="flex-shrink-0 text-center w-20 cursor-pointer group">
+          <div class="w-20 h-20 rounded-full overflow-hidden border border-border mx-auto mb-2 group-hover:border-accent/40 transition-colors">
+            <img src="https://image.tmdb.org/t/p/w185/cXbhA6NTQBFXLF3AXFnSb4KNMFs.jpg" class="w-full h-full object-cover"/>
+          </div>
+          <p class="text-[11px] font-medium truncate">Rebecca Ferguson</p>
+          <p class="text-[10px] text-muted truncate">Lady Jessica</p>
+        </div>
+        <div class="flex-shrink-0 text-center w-20 cursor-pointer group">
+          <div class="w-20 h-20 rounded-full overflow-hidden border border-border mx-auto mb-2 group-hover:border-accent/40 transition-colors">
+            <img src="https://image.tmdb.org/t/p/w185/hxPmfeBYsrMdcOFLWQDIL7YMt0h.jpg" class="w-full h-full object-cover"/>
+          </div>
+          <p class="text-[11px] font-medium truncate">Austin Butler</p>
+          <p class="text-[10px] text-muted truncate">Feyd-Rautha</p>
+        </div>
+        <div class="flex-shrink-0 text-center w-20 cursor-pointer group">
+          <div class="w-20 h-20 rounded-full overflow-hidden border border-border mx-auto mb-2 group-hover:border-accent/40 transition-colors">
+            <img src="https://image.tmdb.org/t/p/w185/euDPyqLnuwaWMHajcU3oZ9uZezR.jpg" class="w-full h-full object-cover"/>
+          </div>
+          <p class="text-[11px] font-medium truncate">Florence Pugh</p>
+          <p class="text-[10px] text-muted truncate">Princess Irulan</p>
+        </div>
+        <div class="flex-shrink-0 text-center w-20 cursor-pointer group">
+          <div class="w-20 h-20 rounded-full overflow-hidden border border-border mx-auto mb-2 group-hover:border-accent/40 transition-colors">
+            <img src="https://image.tmdb.org/t/p/w185/1hC1JJCl9rCzME7iIxN4dtO8s0B.jpg" class="w-full h-full object-cover"/>
+          </div>
+          <p class="text-[11px] font-medium truncate">Josh Brolin</p>
+          <p class="text-[10px] text-muted truncate">Gurney Halleck</p>
+        </div>
+        <div class="flex-shrink-0 text-center w-20 cursor-pointer group">
+          <div class="w-20 h-20 rounded-full overflow-hidden border border-border mx-auto mb-2 group-hover:border-accent/40 transition-colors">
+            <img src="https://image.tmdb.org/t/p/w185/fD2cZ3h0AIMbPFJMlLWXTrX5wdN.jpg" class="w-full h-full object-cover"/>
+          </div>
+          <p class="text-[11px] font-medium truncate">Javier Bardem</p>
+          <p class="text-[10px] text-muted truncate">Stilgar</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Files section preview -->
+    <div>
+      <h2 class="text-sm font-semibold text-muted uppercase tracking-wider mb-3">Files</h2>
+      <div class="bg-surface border border-border rounded-xl overflow-hidden">
+        <div class="px-4 py-3 flex items-center justify-between border-b border-border bg-surface2/50">
+          <div class="flex items-center gap-2">
+            <svg width="14" height="14" fill="none" stroke="#888890" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <span class="text-sm font-medium">Dune.Part.Two.2024.2160p.UHD.BluRay.x265.mkv</span>
+          </div>
+          <span class="text-xs text-muted">58.4 GB</span>
+        </div>
+        <div class="px-4 py-3 grid grid-cols-3 gap-x-8 gap-y-2 text-xs">
+          <div class="flex justify-between"><span class="text-muted">Container</span><span>MKV</span></div>
+          <div class="flex justify-between"><span class="text-muted">Video</span><span>HEVC (x265)</span></div>
+          <div class="flex justify-between"><span class="text-muted">Resolution</span><span>3840×1646 (4K)</span></div>
+          <div class="flex justify-between"><span class="text-muted">Dynamic Range</span><span class="text-amber-400">HDR10+</span></div>
+          <div class="flex justify-between"><span class="text-muted">Audio</span><span>TrueHD Atmos 7.1</span></div>
+          <div class="flex justify-between"><span class="text-muted">Bitrate</span><span>58.3 Mbps</span></div>
+          <div class="flex justify-between"><span class="text-muted">Frame Rate</span><span>23.976 fps</span></div>
+          <div class="flex justify-between"><span class="text-muted">Subtitles</span><span>6 tracks</span></div>
+          <div class="flex justify-between"><span class="text-muted">Aspect Ratio</span><span>2.39:1</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent history for this item -->
+    <div>
+      <h2 class="text-sm font-semibold text-muted uppercase tracking-wider mb-3">Recent History</h2>
+      <div class="bg-surface border border-border rounded-xl overflow-hidden">
+        <table class="w-full">
+          <thead>
+            <tr class="border-b border-border">
+              <th class="text-left px-4 py-3 text-[11px] font-semibold text-muted uppercase tracking-wider">Date</th>
+              <th class="text-left px-4 py-3 text-[11px] font-semibold text-muted uppercase tracking-wider">User</th>
+              <th class="text-left px-4 py-3 text-[11px] font-semibold text-muted uppercase tracking-wider">Platform</th>
+              <th class="text-left px-4 py-3 text-[11px] font-semibold text-muted uppercase tracking-wider">Stream</th>
+              <th class="text-left px-4 py-3 text-[11px] font-semibold text-muted uppercase tracking-wider">Progress</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-border">
+            <tr class="hover:bg-surface2 cursor-pointer transition-colors">
+              <td class="px-4 py-3 text-xs text-muted">Today 9:14 PM</td>
+              <td class="px-4 py-3"><div class="flex items-center gap-2"><img src="https://i.pravatar.cc/20?u=john" class="w-5 h-5 rounded-full"/><span class="text-sm">john_doe</span></div></td>
+              <td class="px-4 py-3 text-sm text-muted">Plex Web</td>
+              <td class="px-4 py-3"><span class="text-xs px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-accent">Transcode</span></td>
+              <td class="px-4 py-3">
+                <div class="flex items-center gap-2">
+                  <div class="w-20 h-1.5 bg-surface3 rounded-full overflow-hidden"><div class="h-full bg-accent rounded-full" style="width:61%"></div></div>
+                  <span class="text-xs text-muted">61%</span>
+                </div>
+              </td>
+            </tr>
+            <tr class="hover:bg-surface2 cursor-pointer transition-colors">
+              <td class="px-4 py-3 text-xs text-muted">Jul 10, 8:22 PM</td>
+              <td class="px-4 py-3"><div class="flex items-center gap-2"><img src="https://i.pravatar.cc/20?u=sarah" class="w-5 h-5 rounded-full"/><span class="text-sm">sarah_k</span></div></td>
+              <td class="px-4 py-3 text-sm text-muted">Apple TV</td>
+              <td class="px-4 py-3"><span class="text-xs px-2 py-0.5 rounded-full bg-success/10 border border-success/20 text-success">Direct Play</span></td>
+              <td class="px-4 py-3">
+                <div class="flex items-center gap-2">
+                  <div class="w-20 h-1.5 bg-surface3 rounded-full overflow-hidden"><div class="h-full bg-success rounded-full" style="width:100%"></div></div>
+                  <svg width="12" height="12" fill="#3fb950" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+              </td>
+            </tr>
+            <tr class="hover:bg-surface2 cursor-pointer transition-colors">
+              <td class="px-4 py-3 text-xs text-muted">Jul 8, 10:05 PM</td>
+              <td class="px-4 py-3"><div class="flex items-center gap-2"><img src="https://i.pravatar.cc/20?u=mike99" class="w-5 h-5 rounded-full"/><span class="text-sm">mike99</span></div></td>
+              <td class="px-4 py-3 text-sm text-muted">Android</td>
+              <td class="px-4 py-3"><span class="text-xs px-2 py-0.5 rounded-full bg-info/10 border border-info/20 text-info">Direct Stream</span></td>
+              <td class="px-4 py-3">
+                <div class="flex items-center gap-2">
+                  <div class="w-20 h-1.5 bg-surface3 rounded-full overflow-hidden"><div class="h-full bg-success rounded-full" style="width:100%"></div></div>
+                  <svg width="12" height="12" fill="#3fb950" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</main>
+</div>
+</body>
+</html>

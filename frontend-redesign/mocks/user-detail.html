@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tautulli — john_doe</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        bg:'#111113', surface:'#1c1c1f', surface2:'#242428',
+        surface3:'#2a2a2f', border:'#2e2e33', accent:'#e5a00d',
+        muted:'#888890', danger:'#e5534b', success:'#3fb950', info:'#58a6ff'
+      }
+    }
+  }
+}
+</script>
+<style>
+  body{font-family:'Inter',system-ui,sans-serif;}
+  ::-webkit-scrollbar{width:5px;height:5px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:#2e2e33;border-radius:3px;}
+  .nav-item.active{background:rgba(229,160,13,0.12);color:#e5a00d;}
+  .tab.active{border-bottom:2px solid #e5a00d;color:#e5a00d;}
+  .tab{border-bottom:2px solid transparent;color:#888890;}
+  .bar{transition:height 0.3s ease;}
+</style>
+</head>
+<body class="bg-bg text-white overflow-hidden h-screen flex flex-col">
+
+<!-- TOP BAR -->
+<header class="h-12 min-h-[48px] bg-surface border-b border-border flex items-center px-4 gap-3 z-50">
+  <div class="flex items-center gap-2 text-accent font-bold text-[15px] mr-2">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><polygon points="10,8 16,12 10,16"/></svg>
+    Tautulli
+  </div>
+  <span class="text-muted text-sm">/</span>
+  <a href="users.html" class="text-muted text-sm hover:text-white transition-colors">Users</a>
+  <span class="text-muted text-sm">/</span>
+  <span class="text-sm font-medium">john_doe</span>
+  <div class="flex-1"></div>
+  <div class="flex items-center gap-2 bg-surface3 border border-border rounded-md px-3 py-1.5 w-52">
+    <svg width="13" height="13" fill="none" stroke="#888890" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input placeholder="Search…" class="bg-transparent outline-none text-sm text-white placeholder-muted w-full"/>
+    <span class="text-[10px] text-muted bg-surface2 border border-border rounded px-1 py-0.5">⌘K</span>
+  </div>
+  <div class="flex items-center gap-2 px-2 py-1 bg-surface2 border border-border rounded-md text-xs text-muted">
+    <div class="w-2 h-2 rounded-full bg-success"></div>My Plex Server
+  </div>
+  <div class="flex items-center gap-2 px-2 py-1 rounded-md hover:bg-surface3 cursor-pointer">
+    <img src="https://i.pravatar.cc/28?u=admin" class="w-7 h-7 rounded-full border border-border"/>
+    <span class="text-sm font-medium">Admin</span>
+  </div>
+</header>
+
+<div class="flex flex-1 overflow-hidden">
+
+<!-- SIDEBAR -->
+<aside class="w-[220px] min-w-[220px] bg-surface border-r border-border flex flex-col overflow-y-auto">
+  <nav class="flex-1 p-2 space-y-0.5 pt-3">
+    <a href="dashboard.html" class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-md text-[13.5px] font-medium text-muted hover:bg-surface2 hover:text-white cursor-pointer transition-colors">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard
+    </a>
+    <a href="history.html" class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-md text-[13.5px] font-medium text-muted hover:bg-surface2 hover:text-white cursor-pointer transition-colors">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>History
+    </a>
+    <a href="users.html" class="nav-item active flex items-center gap-2.5 px-3 py-2 rounded-md text-[13.5px] font-medium cursor-pointer transition-colors">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Users
+    </a>
+    <a href="#" class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-md text-[13.5px] font-medium text-muted hover:bg-surface2 hover:text-white cursor-pointer transition-colors">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Libraries
+    </a>
+    <a href="#" class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-md text-[13.5px] font-medium text-muted hover:bg-surface2 hover:text-white cursor-pointer transition-colors">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Graphs
+    </a>
+    <a href="#" class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-md text-[13.5px] font-medium text-muted hover:bg-surface2 hover:text-white cursor-pointer transition-colors">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Recently Added
+    </a>
+  </nav>
+  <div class="p-2 border-t border-border">
+    <a href="#" class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-md text-[13.5px] font-medium text-muted hover:bg-surface2 hover:text-white cursor-pointer transition-colors">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings
+    </a>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="flex-1 overflow-y-auto bg-bg">
+
+  <!-- User hero header -->
+  <div class="bg-surface border-b border-border px-6 py-5">
+    <div class="flex items-start gap-5">
+      <!-- Avatar -->
+      <div class="relative flex-shrink-0">
+        <img src="https://i.pravatar.cc/80?u=john" class="w-20 h-20 rounded-full border-2 border-accent shadow-xl"/>
+        <div class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-success border-2 border-surface"></div>
+      </div>
+      <!-- Info -->
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-3 mb-1">
+          <h1 class="text-xl font-bold">john_doe</h1>
+          <span class="text-xs px-2 py-0.5 bg-accent/10 border border-accent/20 text-accent rounded-full font-medium">Admin</span>
+          <button class="text-muted hover:text-white transition-colors">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+        </div>
+        <p class="text-sm text-muted mb-3">John Doe · john@example.com</p>
+        <!-- Quick stat chips -->
+        <div class="flex items-center gap-2 flex-wrap">
+          <div class="flex items-center gap-2 px-3 py-1.5 bg-surface2 border border-border rounded-lg text-xs">
+            <svg width="12" height="12" fill="none" stroke="#888890" stroke-width="2" viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+            <span class="text-muted">Total Plays</span>
+            <strong class="text-white ml-1">1,284</strong>
+          </div>
+          <div class="flex items-center gap-2 px-3 py-1.5 bg-surface2 border border-border rounded-lg text-xs">
+            <svg width="12" height="12" fill="none" stroke="#888890" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span class="text-muted">Total Duration</span>
+            <strong class="text-white ml-1">847h 32m</strong>
+          </div>
+          <div class="flex items-center gap-2 px-3 py-1.5 bg-surface2 border border-border rounded-lg text-xs">
+            <svg width="12" height="12" fill="none" stroke="#888890" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span class="text-muted">Last Seen</span>
+            <strong class="text-white ml-1">2 hours ago</strong>
+          </div>
+          <div class="flex items-center gap-2 px-3 py-1.5 bg-surface2 border border-border rounded-lg text-xs">
+            <svg width="12" height="12" fill="none" stroke="#888890" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/></svg>
+            <span class="text-muted">Favourite</span>
+            <strong class="text-white ml-1">Plex Web</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex gap-1 mt-5 -mb-5 border-b border-transparent">
+      <button class="tab active px-4 py-2.5 text-sm font-medium transition-colors">Profile</button>
+      <button class="tab px-4 py-2.5 text-sm font-medium hover:text-white transition-colors">History</button>
+      <button class="tab px-4 py-2.5 text-sm font-medium hover:text-white transition-colors">Playlists</button>
+      <button class="tab px-4 py-2.5 text-sm font-medium hover:text-white transition-colors">IP Addresses</button>
+      <button class="tab px-4 py-2.5 text-sm font-medium hover:text-white transition-colors">Logins</button>
+      <button class="tab px-4 py-2.5 text-sm font-medium hover:text-white transition-colors">Export</button>
+    </div>
+  </div>
+
+  <!-- Profile tab content -->
+  <div class="p-6 space-y-6">
+
+    <!-- Global stats cards -->
+    <div>
+      <h2 class="text-sm font-semibold text-muted uppercase tracking-wider mb-3">Watch Time Stats</h2>
+      <div class="grid grid-cols-4 gap-3">
+        <div class="bg-surface border border-border rounded-xl p-4">
+          <p class="text-xs text-muted mb-2">Last 24 Hours</p>
+          <p class="text-2xl font-bold text-white">12</p>
+          <p class="text-xs text-muted mt-1">plays · 8h 42m</p>
+        </div>
+        <div class="bg-surface border border-border rounded-xl p-4">
+          <p class="text-xs text-muted mb-2">Last 7 Days</p>
+          <p class="text-2xl font-bold text-white">64</p>
+          <p class="text-xs text-muted mt-1">plays · 43h 15m</p>
+        </div>
+        <div class="bg-surface border border-border rounded-xl p-4">
+          <p class="text-xs text-muted mb-2">Last 30 Days</p>
+          <p class="text-2xl font-bold text-white">248</p>
+          <p class="text-xs text-muted mt-1">plays · 167h 08m</p>
+        </div>
+        <div class="bg-surface border border-border rounded-xl p-4">
+          <p class="text-xs text-muted mb-2">All Time</p>
+          <p class="text-2xl font-bold text-accent">1,284</p>
+          <p class="text-xs text-muted mt-1">plays · 847h 32m</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Activity sparkline (30d) -->
+    <div class="bg-surface border border-border rounded-xl p-4">
+      <p class="text-xs font-semibold text-muted uppercase tracking-wider mb-3">Activity — Last 30 Days</p>
+      <div class="flex items-end gap-1 h-14">
+        <!-- Simulated bar chart -->
+        <div class="flex-1 bg-accent/30 rounded-sm" style="height:40%"></div>
+        <div class="flex-1 bg-accent/30 rounded-sm" style="height:70%"></div>
+        <div class="flex-1 bg-accent/30 rounded-sm" style="height:30%"></div>
+        <div class="flex-1 bg-accent/30 rounded-sm" style="height:55%"></div>
+        <div class="flex-1 bg-accent/60 rounded-sm" style="height:80%"></div>
+        <div class="flex-1 bg-accent/30 rounded-sm" style="height:25%"></div>
+        <div class="flex-1 bg-accent/30 rounded-sm" style="height:45%"></div>
+        <div class="flex-1 bg-accent/30 rounded-sm" style="height:60%"></div>
+        <div class="flex-1 bg-accent/30 rounded-sm" style="height:35%"></div>
+        <div class="flex-1 bg-accent/60 rounded-sm" style="height:90%"></div>
+        <div class="flex-1 bg-accent/30 rounded-sm" style="height:50%"></div>
+        <div class="flex-1 bg-accent/30 rounded-sm" style="height:40%"></div>
+        <div class="flex-1 bg-accent/30 rounded-sm" style="height:65%"></div>
+        <div class="flex-1 bg-accent/30 rounded-sm" style="height:20%"></div>
+        <div class="flex-1 bg-accent/60 rounded-sm" style="height:100%"></div>
+        <div class="flex-1 bg-accent/30 rounded-sm" style="height:75%"></div>
+        <div class="flex-1 bg-accent/30 rounded-sm" style="height:45%"></div>
+        <div class="flex-1 bg-accent/30 rounded-sm" style="height:30%"></div>
+        <div class="flex-1 bg-accent/30 rounded-sm" style="height:55%"></div>
+        <div class="flex-1 bg-accent/30 rounded-sm" style="height:70%"></div>
+        <div class="flex-1 bg-accent/60 rounded-sm" style="height:85%"></div>
+        <div class="flex-1 bg-accent/30 rounded-sm" style="height:40%"></div>
+        <div class="flex-1 bg-accent/30 rounded-sm" style="height:60%"></div>
+        <div class="flex-1 bg-accent/30 rounded-sm" style="height:35%"></div>
+        <div class="flex-1 bg-accent/30 rounded-sm" style="height:50%"></div>
+        <div class="flex-1 bg-accent/30 rounded-sm" style="height:80%"></div>
+        <div class="flex-1 bg-accent/60 rounded-sm" style="height:95%"></div>
+        <div class="flex-1 bg-accent/30 rounded-sm" style="height:70%"></div>
+        <div class="flex-1 bg-accent/30 rounded-sm" style="height:55%"></div>
+        <div class="flex-1 bg-accent rounded-sm" style="height:65%"></div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-6">
+      <!-- Player stats -->
+      <div>
+        <h2 class="text-sm font-semibold text-muted uppercase tracking-wider mb-3">Player Stats</h2>
+        <div class="bg-surface border border-border rounded-xl overflow-hidden">
+          <div class="divide-y divide-border">
+            <div class="flex items-center gap-3 px-4 py-3">
+              <div class="w-8 h-8 rounded-lg bg-surface3 flex items-center justify-center">
+                <svg width="16" height="16" fill="none" stroke="#888890" stroke-width="1.5" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><polyline points="8 21 12 17 16 21"/></svg>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-medium">Plex Web</p>
+                <p class="text-xs text-muted">Chrome · macOS</p>
+              </div>
+              <span class="text-sm font-semibold">642</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3">
+              <div class="w-8 h-8 rounded-lg bg-surface3 flex items-center justify-center">
+                <svg width="16" height="16" fill="none" stroke="#888890" stroke-width="1.5" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/></svg>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-medium">Plex for iOS</p>
+                <p class="text-xs text-muted">iPhone</p>
+              </div>
+              <span class="text-sm font-semibold text-muted">421</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3">
+              <div class="w-8 h-8 rounded-lg bg-surface3 flex items-center justify-center">
+                <svg width="16" height="16" fill="none" stroke="#888890" stroke-width="1.5" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17 2 12 7 7 2"/></svg>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-medium">Apple TV</p>
+                <p class="text-xs text-muted">tvOS</p>
+              </div>
+              <span class="text-sm font-semibold text-muted">221</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recently played -->
+      <div>
+        <h2 class="text-sm font-semibold text-muted uppercase tracking-wider mb-3">Recently Played</h2>
+        <div class="bg-surface border border-border rounded-xl overflow-hidden">
+          <div class="divide-y divide-border">
+            <div class="flex items-center gap-3 px-4 py-3 hover:bg-surface2 cursor-pointer transition-colors">
+              <img src="https://image.tmdb.org/t/p/w342/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg" class="w-8 h-12 object-cover rounded"/>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium truncate">Dune: Part Two</p>
+                <p class="text-xs text-muted">2h ago · 61%</p>
+              </div>
+              <svg width="14" height="14" fill="none" stroke="#888890" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 hover:bg-surface2 cursor-pointer transition-colors">
+              <img src="https://image.tmdb.org/t/p/w342/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg" class="w-8 h-12 object-cover rounded"/>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium truncate">Oppenheimer</p>
+                <p class="text-xs text-muted">Yesterday · 100%</p>
+              </div>
+              <svg width="14" height="14" fill="none" stroke="#888890" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 hover:bg-surface2 cursor-pointer transition-colors">
+              <img src="https://image.tmdb.org/t/p/w342/ztkUQFLlC19CCMYHW9o1zWhJRNq.jpg" class="w-8 h-12 object-cover rounded"/>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium truncate">Breaking Bad — S04E09</p>
+                <p class="text-xs text-muted">2 days ago · 100%</p>
+              </div>
+              <svg width="14" height="14" fill="none" stroke="#888890" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</main>
+</div>
+</body>
+</html>

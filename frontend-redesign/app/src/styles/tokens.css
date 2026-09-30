@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
+
+  /* Tautulli surface and brand palette */
+  --color-bg: #111113;
+  --color-surface: #1c1c1f;
+  --color-surface2: #242428;
+  --color-surface3: #2a2a2f;
+  --color-surface-2: #242428;
+  --color-surface-3: #2a2a2f;
+  --color-border: #2e2e33;
+  --color-accent: #e5a00d;
+  --color-accent-gold: #ebaf00;
+  --color-text: #e2e2e5;
+  --color-muted: #888890;
+  --color-danger: #e5534b;
+  --color-success: #3fb950;
+  --color-info: #58a6ff;
+
+  /* Stream decisions: use these instead of generic status colors. */
+  --color-stream-direct-play: #ebaf00;
+  --color-stream-direct-stream: #eeeeee;
+  --color-stream-transcode: #e5534b;
+
+  /* Platform colors shared by activity cards and analytics. */
+  --color-platform-android: #3ddc84;
+  --color-platform-apple: #a2aaad;
+  --color-platform-chromecast: #4285f4;
+  --color-platform-roku: #6732ad;
+  --color-platform-xbox: #107c10;
+  --color-platform-chrome: #db4437;
+  --color-platform-firefox: #ff7139;
+  --color-platform-edge: #0078d7;
+  --color-platform-samsung: #034ea2;
+  --color-platform-kodi: #30aada;
+}
+
+:root {
+  --bg: #111113;
+  --surface: #1c1c1f;
+  --surface-2: #242428;
+  --surface-3: #2a2a2f;
+  --border: #2e2e33;
+  --accent: #e5a00d;
+  --text: #e2e2e5;
+  --muted: #888890;
+  --danger: #e5534b;
+  --success: #3fb950;
+  --info: #58a6ff;
+}

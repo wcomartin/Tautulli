@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tautulli — Dashboard V4 States</title>
+  <style>
+    :root {
+      --bg: #111113;
+      --surface: #1c1c1f;
+      --surface2: #242428;
+      --surface3: #2a2a2f;
+      --border: #2e2e33;
+      --accent: #e5a00d;
+      --text: #e2e2e5;
+      --muted: #888890;
+      --danger: #e5534b;
+      --success: #3fb950;
+      --info: #58a6ff;
+    }
+    * { box-sizing: border-box; }
+    html { font-size: clamp(14px, .3vw + 10.2px, 17px); }
+    body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--text); font-family: Inter, system-ui, sans-serif; }
+    main { width: min(1440px, 100%); margin: 0 auto; padding: clamp(1.25rem, 2vw, 2.5rem); }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: 1.35rem; }
+    h2 { font-size: .95rem; }
+    .muted { color: var(--muted); }
+    .caption { color: var(--muted); font-size: .75rem; line-height: 1.45; }
+    .intro { display: flex; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; }
+    .intro p { max-width: 44rem; margin-top: .35rem; }
+    .state-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+    .state { background: var(--surface); border: 1px solid var(--border); border-radius: .75rem; overflow: hidden; }
+    .state-header { display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding: .9rem 1rem; border-bottom: 1px solid var(--border); }
+    .state-label { display: inline-flex; align-items: center; gap: .4rem; color: var(--muted); font-size: .68rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    .state-body { min-height: 11rem; display: flex; align-items: center; justify-content: center; padding: 1.5rem; }
+    .center { width: 100%; text-align: center; }
+    .icon { width: 2.5rem; height: 2.5rem; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--border); border-radius: .7rem; background: var(--surface2); color: var(--muted); font-size: 1.2rem; margin-bottom: .7rem; }
+    .icon.accent { color: var(--accent); border-color: rgba(229,160,13,.3); background: rgba(229,160,13,.1); }
+    .icon.danger { color: var(--danger); border-color: rgba(229,83,75,.3); background: rgba(229,83,75,.1); }
+    .icon.info { color: var(--info); border-color: rgba(88,166,255,.3); background: rgba(88,166,255,.1); }
+    .state h3 { font-size: .9rem; margin-bottom: .35rem; }
+    .state .action { display: inline-flex; margin-top: 1rem; padding: .45rem .75rem; border: 1px solid var(--border); border-radius: .45rem; color: var(--text); background: var(--surface2); font: inherit; font-size: .75rem; text-decoration: none; }
+    .state .action.primary { color: #111113; border-color: var(--accent); background: var(--accent); }
+    .skeletons { width: 100%; display: grid; gap: .7rem; }
+    .skeleton { height: .8rem; border-radius: .25rem; background: linear-gradient(90deg, var(--surface2), var(--surface3), var(--surface2)); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+    .skeleton.short { width: 42%; }
+    .skeleton.card { height: 4rem; }
+    @keyframes shimmer { to { background-position: -200% 0; } }
+    .error-copy { text-align: left; padding: .75rem .9rem; border-left: 2px solid var(--danger); background: rgba(229,83,75,.07); }
+    .error-copy strong { display: block; color: var(--danger); font-size: .8rem; margin-bottom: .25rem; }
+    .partial { width: 100%; }
+    .partial-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .7rem 0; border-bottom: 1px solid var(--border); font-size: .8rem; }
+    .partial-row:last-child { border-bottom: 0; }
+    .warning { color: var(--accent); font-size: .72rem; }
+    @media (max-width: 720px) {
+      .intro { display: block; }
+      .intro .caption { margin-top: .5rem; }
+      .state-grid { grid-template-columns: 1fr; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; } }
+  </style>
+</head>
+<body>
+<main>
+  <div class="intro">
+    <div>
+      <h1>Dashboard state gallery</h1>
+      <p class="caption">V4 designs for expected loading, empty, unavailable, and partial-data states. These are presentation references, not interactive production screens.</p>
+    </div>
+    <span class="state-label">Design review · V4</span>
+  </div>
+
+  <div class="state-grid">
+    <section class="state" aria-labelledby="loading-title">
+      <header class="state-header"><h2 id="loading-title">Initial loading</h2><span class="state-label">Loading</span></header>
+      <div class="state-body"><div class="skeletons" aria-label="Loading dashboard">
+        <div class="skeleton short"></div><div class="skeleton"></div><div class="skeleton card"></div><div class="skeleton card"></div>
+      </div></div>
+    </section>
+
+    <section class="state" aria-labelledby="idle-title">
+      <header class="state-header"><h2 id="idle-title">No active streams</h2><span class="state-label">Normal</span></header>
+      <div class="state-body"><div class="center"><div class="icon accent">▶</div><h3>Nothing is currently being played</h3><p class="caption">New activity will appear here automatically.</p><button class="action">Refresh now</button></div></div>
+    </section>
+
+    <section class="state" aria-labelledby="offline-title">
+      <header class="state-header"><h2 id="offline-title">Plex unavailable</h2><span class="state-label">Error</span></header>
+      <div class="state-body"><div class="center"><div class="icon danger">!</div><h3>Unable to reach Plex</h3><p class="caption">Tautulli will retry automatically. Existing data may be out of date.</p><a class="action primary" href="#settings">Open settings</a></div></div>
+    </section>
+
+    <section class="state" aria-labelledby="cloud-title">
+      <header class="state-header"><h2 id="cloud-title">Plex Cloud sleeping</h2><span class="state-label">Waiting</span></header>
+      <div class="state-body"><div class="center"><div class="icon info">◌</div><h3>Plex Cloud server is sleeping</h3><p class="caption">Activity will resume when the server wakes up.</p><button class="action">Check again</button></div></div>
+    </section>
+
+    <section class="state" aria-labelledby="empty-title">
+      <header class="state-header"><h2 id="empty-title">Empty libraries</h2><span class="state-label">Empty</span></header>
+      <div class="state-body"><div class="center"><div class="icon">▤</div><h3>No library statistics yet</h3><p class="caption">Watch activity will appear after media is played.</p><a class="action" href="#libraries">View libraries</a></div></div>
+    </section>
+
+    <section class="state" aria-labelledby="partial-title">
+      <header class="state-header"><h2 id="partial-title">Partial API failure</h2><span class="state-label">Degraded</span></header>
+      <div class="state-body"><div class="partial">
+        <div class="partial-row"><span>Live activity</span><strong style="color:var(--success)">Available</strong></div>
+        <div class="partial-row"><span>Library statistics</span><strong class="warning">Temporarily unavailable</strong></div>
+        <div class="partial-row"><span>Recently added</span><strong style="color:var(--success)">Available</strong></div>
+        <p class="caption" style="margin-top:.8rem">One dashboard section failed to load. The rest of the page remains usable.</p>
+        <button class="action" type="button">Retry statistics</button>
+      </div></div>
+    </section>
+  </div>
+</main>
+</body>
+</html>

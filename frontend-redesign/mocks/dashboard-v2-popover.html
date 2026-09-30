@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tautulli — Dashboard</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        bg:'#111113', surface:'#1c1c1f', surface2:'#242428',
+        surface3:'#2a2a2f', border:'#2e2e33', accent:'#e5a00d',
+        muted:'#888890', danger:'#e5534b', success:'#3fb950', info:'#58a6ff'
+      }
+    }
+  }
+}
+</script>
+<style>
+  body { font-family: 'Inter', system-ui, sans-serif; }
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #2e2e33; border-radius: 3px; }
+
+  /* ── Fluid type scale ── */
+  /* Base size grows from 14px at 1280px up to 16px at 1920px */
+  html { font-size: clamp(14px, 0.3vw + 10.2px, 17px); }
+
+  /* ── Nav link underline animation ── */
+  .nav-link {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    padding: 0.4em 0.75em;
+    border-radius: 0.5em;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #888890;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color .15s, background .15s;
+    text-decoration: none;
+  }
+  .nav-link:hover { color: #e2e2e5; background: rgba(255,255,255,0.04); }
+  .nav-link.active { color: #e2e2e5; }
+  .nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: -0.85em;
+    left: 50%; transform: translateX(-50%);
+    width: calc(100% - 0.75em);
+    height: 2px;
+    background: #e5a00d;
+    border-radius: 2px 2px 0 0;
+  }
+  .nav-link svg { opacity: .7; flex-shrink: 0; }
+  .nav-link.active svg { opacity: 1; }
+
+  /* ── Command palette ── */
+  #cmd-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.65);
+    backdrop-filter: blur(6px);
+    z-index: 999;
+    display: none;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 14vh;
+  }
+  #cmd-overlay.open { display: flex; }
+  #cmd-box {
+    width: 580px;
+    background: #1c1c1f;
+    border: 1px solid #3a3a42;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 32px 80px rgba(0,0,0,.8), 0 0 0 1px rgba(255,255,255,.04);
+  }
+  #cmd-input {
+    width: 100%; background: transparent; border: none; outline: none;
+    color: #e2e2e5; font-size: 16px; padding: 18px 20px; font-family: inherit;
+  }
+  #cmd-input::placeholder { color: #888890; }
+  .cmd-result {
+    display: flex; align-items: center; gap: 12px;
+    padding: 9px 12px; cursor: pointer; border-radius: 8px;
+    margin: 0 6px; transition: background .1s;
+  }
+  .cmd-result:hover, .cmd-result.sel { background: rgba(229,160,13,.1); }
+  .cmd-result.sel .cmd-icon { border-color: rgba(229,160,13,.3); color: #e5a00d; }
+  .cmd-icon {
+    width: 32px; height: 32px; background: #242428; border: 1px solid #2e2e33;
+    border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    color: #888890; flex-shrink: 0;
+  }
+  .cmd-section {
+    font-size: 10px; font-weight: 700; letter-spacing: .08em;
+    text-transform: uppercase; color: #888890; padding: 8px 18px 3px;
+  }
+  .cmd-kbd {
+    font-size: 11px; color: #888890; background: #2a2a2f;
+    border: 1px solid #3a3a40; border-radius: 4px; padding: 2px 6px;
+  }
+
+  /* ── Stream cards ── */
+  .stream-card { transition: transform .15s, box-shadow .15s; }
+  .stream-card:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(0,0,0,.5); }
+  .progress-buf { position:absolute;top:0;left:0;height:100%;background:rgba(255,255,255,.08);border-radius:2px; }
+  .progress-play { position:absolute;top:0;left:0;height:100%;background:#e5a00d;border-radius:2px; }
+</style>
+</head>
+<body class="bg-bg text-white h-screen flex flex-col overflow-hidden">
+
+<!-- ══════════════════════════════════════════════
+     COMMAND PALETTE
+══════════════════════════════════════════════ -->
+<div id="cmd-overlay" onclick="if(event.target===this)closeCmd()">
+  <div id="cmd-box">
+    <div class="flex items-center gap-3 px-4 border-b border-border">
+      <svg width="16" height="16" fill="none" stroke="#888890" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input id="cmd-input" placeholder="Go to page, search, find user…" autocomplete="off"/>
+      <span class="cmd-kbd">ESC</span>
+    </div>
+    <div class="py-2 pb-3">
+      <div class="cmd-section">Navigation</div>
+      <div class="cmd-result sel"><div class="cmd-icon"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></div><span class="text-sm font-medium flex-1">Dashboard</span><span class="text-xs text-muted">Home · Live activity</span></div>
+      <div class="cmd-result" onclick="location.href='history.html';closeCmd()"><div class="cmd-icon"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><span class="text-sm font-medium flex-1">History</span><span class="text-xs text-muted">Watch history</span></div>
+      <div class="cmd-result" onclick="location.href='user-detail.html';closeCmd()"><div class="cmd-icon"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><span class="text-sm font-medium flex-1">Users</span><span class="text-xs text-muted">All Plex users</span></div>
+      <div class="cmd-result"><div class="cmd-icon"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div><span class="text-sm font-medium flex-1">Libraries</span><span class="text-xs text-muted">Plex libraries</span></div>
+      <div class="cmd-result"><div class="cmd-icon"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><span class="text-sm font-medium flex-1">Graphs</span><span class="text-xs text-muted">Analytics &amp; charts</span></div>
+      <div class="cmd-section mt-1">Recent</div>
+      <div class="cmd-result" onclick="location.href='media-info.html';closeCmd()">
+        <img src="https://image.tmdb.org/t/p/w342/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg" class="w-8 h-12 object-cover rounded flex-shrink-0"/>
+        <span class="text-sm font-medium flex-1">Dune: Part Two</span><span class="text-xs text-muted">Movie</span>
+      </div>
+      <div class="cmd-result">
+        <img src="https://image.tmdb.org/t/p/w342/ztkUQFLlC19CCMYHW9o1zWhJRNq.jpg" class="w-8 h-12 object-cover rounded flex-shrink-0"/>
+        <span class="text-sm font-medium flex-1">Breaking Bad</span><span class="text-xs text-muted">TV Show</span>
+      </div>
+    </div>
+    <div class="border-t border-border px-4 py-2 flex items-center gap-4 text-[11px] text-muted">
+      <span><span class="cmd-kbd">↑↓</span> navigate</span>
+      <span><span class="cmd-kbd">↵</span> open</span>
+      <span><span class="cmd-kbd">ESC</span> close</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     HEADER
+══════════════════════════════════════════════ -->
+<header class="bg-surface border-b border-border flex-shrink-0">
+
+  <!-- Top row: logo + search + user -->
+  <div class="flex items-center gap-4 px-6" style="height: 3.75rem;">
+
+    <!-- Logo -->
+    <div class="flex items-center gap-2.5 mr-2">
+      <div class="rounded-lg bg-accent/15 border border-accent/25 flex items-center justify-center" style="width:2.25rem;height:2.25rem;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#e5a00d" stroke-width="2.5" style="width:1rem;height:1rem;"><circle cx="12" cy="12" r="10"/><polygon points="10,8 16,12 10,16" fill="#e5a00d" stroke="none"/></svg>
+      </div>
+      <span class="font-bold tracking-tight" style="font-size:1.05rem;">Tautulli</span>
+    </div>
+
+    <!-- Server status pill -->
+    <div class="flex items-center gap-1.5 px-3 py-1.5 bg-surface2 border border-border rounded-full text-muted" style="font-size:0.75rem;">
+      <div class="w-1.5 h-1.5 rounded-full bg-success flex-shrink-0"></div>
+      My Plex Server
+    </div>
+
+    <div class="flex-1"></div>
+
+    <!-- Search — command palette trigger -->
+    <button onclick="openCmd()"
+      class="flex items-center gap-2.5 bg-surface2 border border-border rounded-lg px-3.5 text-muted hover:border-muted hover:bg-surface3 transition-all group"
+      style="width:16rem; height:2.25rem; font-size:0.875rem;">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="flex-shrink-0" style="width:0.875rem;height:0.875rem;"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <span class="flex-1 text-left">Search or go to…</span>
+      <span class="flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity" style="font-size:0.7rem;">
+        <span class="bg-surface border border-border rounded px-1.5 py-0.5 font-medium">⌘</span>
+        <span class="bg-surface border border-border rounded px-1.5 py-0.5 font-medium">K</span>
+      </span>
+    </button>
+
+    <!-- Notification bell -->
+    <button class="relative flex items-center justify-center rounded-lg text-muted hover:bg-surface2 hover:text-white transition-colors" style="width:2.25rem;height:2.25rem;">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:1.1rem;height:1.1rem;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-accent rounded-full border-2 border-surface"></span>
+    </button>
+
+    <!-- User menu -->
+    <div class="flex items-center gap-2.5 pl-3 border-l border-border cursor-pointer">
+      <img src="https://i.pravatar.cc/36?u=admin" class="rounded-full border border-border" style="width:2rem;height:2rem;"/>
+      <div class="hidden sm:block">
+        <p class="font-medium leading-none" style="font-size:0.875rem;">Admin</p>
+        <p class="text-muted mt-0.5" style="font-size:0.7rem;">Administrator</p>
+      </div>
+      <svg fill="none" stroke="#888890" stroke-width="2" viewBox="0 0 24 24" class="ml-1" style="width:0.875rem;height:0.875rem;"><path d="m6 9 6 6 6-6"/></svg>
+    </div>
+  </div>
+
+  <!-- Nav row -->
+  <div class="flex items-center gap-1 px-5 relative" style="height:2.75rem;">
+
+    <a href="dashboard.html" class="nav-link active">
+      <svg style="width:.875rem;height:.875rem;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </a>
+
+    <a href="history.html" class="nav-link">
+      <svg style="width:.875rem;height:.875rem;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      History
+    </a>
+
+    <a href="users.html" class="nav-link">
+      <svg style="width:.875rem;height:.875rem;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Users
+    </a>
+
+    <a href="#" class="nav-link">
+      <svg style="width:.875rem;height:.875rem;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      Libraries
+    </a>
+
+    <a href="#" class="nav-link">
+      <svg style="width:.875rem;height:.875rem;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Graphs
+    </a>
+
+    <a href="#" class="nav-link">
+      <svg style="width:.875rem;height:.875rem;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      Recently Added
+    </a>
+
+    <!-- Divider -->
+    <div class="w-px h-5 bg-border mx-1"></div>
+
+    <a href="#" class="nav-link">
+      <svg style="width:.875rem;height:.875rem;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+      Sync
+    </a>
+
+    <a href="#" class="nav-link">
+      <svg style="width:.875rem;height:.875rem;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Logs
+    </a>
+
+    <div class="flex-1"></div>
+
+    <a href="#" class="nav-link text-muted">
+      <svg style="width:.875rem;height:.875rem;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Settings
+    </a>
+
+  </div>
+</header>
+
+<!-- PAGE CONTENT -->
+<main class="flex-1 overflow-y-auto bg-bg" style="padding: clamp(1.25rem, 2vw, 2.5rem);">
+
+  <!-- ── ACTIVITY SECTION ──────────────────────────────────── -->
+  <div class="mb-8">
+
+    <!-- Section header -->
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center gap-3 flex-wrap">
+        <h2 class="text-base font-semibold">Activity</h2>
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 bg-surface2 border border-border rounded-full text-muted">
+            <span class="w-1.5 h-1.5 rounded-full bg-success animate-pulse"></span>
+            3 streams
+          </span>
+          <span class="text-xs px-2.5 py-1 bg-surface2 border border-border rounded-full text-muted">1 direct · 1 stream · 1 transcode</span>
+          <span class="text-xs px-2.5 py-1 bg-surface2 border border-border rounded-full text-muted">↑ 62.4 Mbps</span>
+        </div>
+      </div>
+      <span class="text-xs text-muted hidden sm:block">auto-refresh 10s</span>
+    </div>
+
+    <!-- Stream cards grid — slim, scannable -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3" style="max-width:1400px;">
+
+      <!-- CARD 1 — Dune: Part Two, Transcode, Playing -->
+      <div class="stream-card bg-surface border border-border rounded-xl overflow-hidden cursor-pointer hover:border-accent/30 transition-all"
+           id="card-dune" onclick="openPopover(event,'dune')" style="position:relative;">
+        <!-- Art strip -->
+        <div class="relative h-24 overflow-hidden">
+          <img src="https://image.tmdb.org/t/p/w1280/eZ239CUp1d6OryZEBPnO2n87gMG.jpg"
+               class="w-full h-full object-cover opacity-50"/>
+          <div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent"></div>
+          <div class="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent"></div>
+          <!-- Poster -->
+          <img src="https://image.tmdb.org/t/p/w342/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg"
+               class="absolute top-2 left-3 h-20 w-14 object-cover rounded-lg border border-white/10 shadow-lg"/>
+          <!-- Platform + stream type badges -->
+          <div class="absolute top-2 right-3 flex flex-col items-end gap-1.5">
+            <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-black/70 text-muted uppercase tracking-wide">Plex Web</span>
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/30 text-accent font-semibold">Transcode 3.2×</span>
+          </div>
+          <!-- Title over art -->
+          <div class="absolute bottom-2 left-20 right-3">
+            <p class="text-sm font-semibold leading-tight truncate drop-shadow">Dune: Part Two</p>
+            <p class="text-xs text-muted/90 mt-0.5">2024 · Movie</p>
+          </div>
+        </div>
+
+        <!-- Progress bar -->
+        <div class="px-3 pt-2 pb-1">
+          <div class="relative h-1 bg-surface3 rounded-full overflow-hidden">
+            <div class="absolute inset-y-0 left-0 bg-white/10 rounded-full" style="width:82%"></div>
+            <div class="absolute inset-y-0 left-0 bg-accent rounded-full" style="width:61%"></div>
+          </div>
+        </div>
+
+        <!-- Card footer -->
+        <div class="px-3 pb-3 pt-1.5 flex items-center gap-2.5">
+          <img src="https://i.pravatar.cc/24?u=john" class="w-6 h-6 rounded-full border border-border flex-shrink-0"/>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5">
+              <!-- Live play pulse -->
+              <svg width="10" height="10" fill="#e5a00d" viewBox="0 0 24 24" class="flex-shrink-0 animate-pulse"><polygon points="5,3 19,12 5,21"/></svg>
+              <span class="text-xs font-medium truncate">john_doe</span>
+            </div>
+            <p class="text-[10px] text-muted mt-0.5">1:42:10 / 2:46:00 · ETA 9:14 PM</p>
+          </div>
+          <div class="flex items-center gap-1 text-xs text-muted flex-shrink-0">
+            <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/></svg>
+            20 Mbps
+          </div>
+          <!-- Chevron hint -->
+          <svg width="14" height="14" fill="none" stroke="#888890" stroke-width="2" viewBox="0 0 24 24" class="flex-shrink-0 opacity-50"><path d="m9 18 6-6-6-6"/></svg>
+        </div>
+      </div>
+
+      <!-- CARD 2 — Breaking Bad, Direct Play, Playing -->
+      <div class="stream-card bg-surface border border-border rounded-xl overflow-hidden cursor-pointer hover:border-accent/30 transition-all"
+           id="card-bb" onclick="openPopover(event,'bb')" style="position:relative;">
+        <div class="relative h-24 overflow-hidden">
+          <img src="https://image.tmdb.org/t/p/w1280/tsRy63Mu5cu8etL1X7ZLyf7UP1M.jpg"
+               class="w-full h-full object-cover opacity-50"/>
+          <div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent"></div>
+          <div class="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent"></div>
+          <img src="https://image.tmdb.org/t/p/w342/ztkUQFLlC19CCMYHW9o1zWhJRNq.jpg"
+               class="absolute top-2 left-3 h-20 w-14 object-cover rounded-lg border border-white/10 shadow-lg"/>
+          <div class="absolute top-2 right-3 flex flex-col items-end gap-1.5">
+            <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-black/70 text-muted uppercase tracking-wide">Apple TV</span>
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-success/20 border border-success/30 text-success font-semibold">Direct Play</span>
+          </div>
+          <div class="absolute bottom-2 left-20 right-3">
+            <p class="text-sm font-semibold leading-tight truncate drop-shadow">Breaking Bad</p>
+            <p class="text-xs text-muted/90 mt-0.5">S04 · E10 — Salud</p>
+          </div>
+        </div>
+        <div class="px-3 pt-2 pb-1">
+          <div class="relative h-1 bg-surface3 rounded-full overflow-hidden">
+            <div class="absolute inset-y-0 left-0 bg-success rounded-full" style="width:38%"></div>
+          </div>
+        </div>
+        <div class="px-3 pb-3 pt-1.5 flex items-center gap-2.5">
+          <img src="https://i.pravatar.cc/24?u=sarah" class="w-6 h-6 rounded-full border border-border flex-shrink-0"/>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5">
+              <svg width="10" height="10" fill="#3fb950" viewBox="0 0 24 24" class="flex-shrink-0 animate-pulse"><polygon points="5,3 19,12 5,21"/></svg>
+              <span class="text-xs font-medium truncate">sarah_k</span>
+            </div>
+            <p class="text-[10px] text-muted mt-0.5">18:32 / 48:00 · ETA 9:41 PM</p>
+          </div>
+          <div class="flex items-center gap-1 text-xs text-muted flex-shrink-0">
+            <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/></svg>
+            8 Mbps
+          </div>
+          <svg width="14" height="14" fill="none" stroke="#888890" stroke-width="2" viewBox="0 0 24 24" class="flex-shrink-0 opacity-50"><path d="m9 18 6-6-6-6"/></svg>
+        </div>
+      </div>
+
+      <!-- CARD 3 — Bohemian Rhapsody, Direct Stream, Paused -->
+      <div class="stream-card bg-surface border border-border rounded-xl overflow-hidden cursor-pointer hover:border-accent/30 transition-all"
+           id="card-brhap" onclick="openPopover(event,'brhap')" style="position:relative;">
+        <div class="relative h-24 overflow-hidden">
+          <img src="https://image.tmdb.org/t/p/w1280/dcvbs8z0GEXslC1kCT77x19XDeR.jpg"
+               class="w-full h-full object-cover opacity-40"/>
+          <div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent"></div>
+          <div class="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent"></div>
+          <!-- Square album cover -->
+          <img src="https://image.tmdb.org/t/p/w342/lHu1wtNaczFPGFDTrjCSzeLPTKN.jpg"
+               class="absolute top-2 left-3 h-20 w-20 object-cover rounded-lg border border-white/10 shadow-lg"/>
+          <div class="absolute top-2 right-3 flex flex-col items-end gap-1.5">
+            <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-black/70 text-muted uppercase tracking-wide">Android</span>
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-info/20 border border-info/30 text-info font-semibold">Direct Stream</span>
+          </div>
+          <div class="absolute bottom-2 left-24 right-3">
+            <p class="text-sm font-semibold leading-tight truncate drop-shadow">Bohemian Rhapsody</p>
+            <p class="text-xs text-muted/90 mt-0.5">Queen · A Night at the Opera</p>
+          </div>
+        </div>
+        <div class="px-3 pt-2 pb-1">
+          <div class="relative h-1 bg-surface3 rounded-full overflow-hidden">
+            <div class="absolute inset-y-0 left-0 bg-muted/40 rounded-full" style="width:55%"></div>
+          </div>
+        </div>
+        <div class="px-3 pb-3 pt-1.5 flex items-center gap-2.5">
+          <img src="https://i.pravatar.cc/24?u=mike99" class="w-6 h-6 rounded-full border border-border flex-shrink-0"/>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5">
+              <!-- Pause icon, no pulse -->
+              <svg width="10" height="10" fill="#888890" viewBox="0 0 24 24" class="flex-shrink-0"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+              <span class="text-xs font-medium truncate text-muted">mike99</span>
+            </div>
+            <p class="text-[10px] text-muted mt-0.5">3:18 / 5:55 · Paused</p>
+          </div>
+          <div class="flex items-center gap-1 text-xs text-muted flex-shrink-0">
+            <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/></svg>
+            1.4 Mbps
+          </div>
+          <svg width="14" height="14" fill="none" stroke="#888890" stroke-width="2" viewBox="0 0 24 24" class="flex-shrink-0 opacity-50"><path d="m9 18 6-6-6-6"/></svg>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- WATCH STATS SECTION -->
+  <div class="mb-8">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-base font-semibold">Watch Statistics</h2>
+      <div class="flex items-center gap-2">
+        <div class="flex bg-surface2 border border-border rounded-md p-0.5 text-xs font-medium">
+          <button class="px-3 py-1 rounded bg-accent text-black">Plays</button>
+          <button class="px-3 py-1 text-muted hover:text-white transition-colors">Duration</button>
+        </div>
+        <div class="flex items-center gap-1 bg-surface2 border border-border rounded-md px-2 py-1 text-xs text-muted">
+          Last <input type="number" value="30" class="w-10 bg-transparent text-center text-white outline-none mx-1"/> days
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4" style="max-width:1400px;">
+
+      <!-- Top Movies stat card -->
+      <div class="bg-surface border border-border rounded-xl overflow-hidden group cursor-pointer hover:border-border/80 transition-colors">
+        <div class="relative h-28 overflow-hidden">
+          <img src="https://image.tmdb.org/t/p/w1280/neeNHeXjMF5fXoCJRsOmkNGC7q.jpg" class="w-full h-full object-cover opacity-50 group-hover:opacity-60 transition-opacity"/>
+          <div class="absolute inset-0 bg-gradient-to-t from-surface via-surface/40 to-transparent"></div>
+          <div class="absolute bottom-2 left-3 right-3">
+            <p class="text-[10px] text-muted uppercase tracking-widest font-semibold">Top Movies</p>
+          </div>
+        </div>
+        <div class="p-3 space-y-1.5">
+          <div class="flex items-center gap-2 text-xs py-0.5 border-b border-border/50 pb-1.5">
+            <span class="text-accent font-bold text-[11px]">1</span>
+            <span class="truncate font-medium">Oppenheimer</span>
+            <span class="ml-auto text-muted">47</span>
+          </div>
+          <div class="flex items-center gap-2 text-xs py-0.5 border-b border-border/50 pb-1.5">
+            <span class="text-muted font-bold text-[11px]">2</span>
+            <span class="truncate text-muted">Dune: Part Two</span>
+            <span class="ml-auto text-muted">38</span>
+          </div>
+          <div class="flex items-center gap-2 text-xs">
+            <span class="text-muted font-bold text-[11px]">3</span>
+            <span class="truncate text-muted">Poor Things</span>
+            <span class="ml-auto text-muted">31</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top TV stat card -->
+      <div class="bg-surface border border-border rounded-xl overflow-hidden group cursor-pointer hover:border-border/80 transition-colors">
+        <div class="relative h-28 overflow-hidden">
+          <img src="https://image.tmdb.org/t/p/w1280/tsRy63Mu5cu8etL1X7ZLyf7UP1M.jpg" class="w-full h-full object-cover opacity-50 group-hover:opacity-60 transition-opacity"/>
+          <div class="absolute inset-0 bg-gradient-to-t from-surface via-surface/40 to-transparent"></div>
+          <div class="absolute bottom-2 left-3 right-3">
+            <p class="text-[10px] text-muted uppercase tracking-widest font-semibold">Top TV Shows</p>
+          </div>
+        </div>
+        <div class="p-3 space-y-1.5">
+          <div class="flex items-center gap-2 text-xs py-0.5 border-b border-border/50 pb-1.5">
+            <span class="text-accent font-bold text-[11px]">1</span>
+            <span class="truncate font-medium">Breaking Bad</span>
+            <span class="ml-auto text-muted">124</span>
+          </div>
+          <div class="flex items-center gap-2 text-xs py-0.5 border-b border-border/50 pb-1.5">
+            <span class="text-muted font-bold text-[11px]">2</span>
+            <span class="truncate text-muted">The Bear</span>
+            <span class="ml-auto text-muted">89</span>
+          </div>
+          <div class="flex items-center gap-2 text-xs">
+            <span class="text-muted font-bold text-[11px]">3</span>
+            <span class="truncate text-muted">Shogun</span>
+            <span class="ml-auto text-muted">67</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Users stat card -->
+      <div class="bg-surface border border-border rounded-xl overflow-hidden group cursor-pointer hover:border-border/80 transition-colors">
+        <div class="relative h-28 overflow-hidden bg-surface2">
+          <div class="absolute inset-0 flex items-center justify-center opacity-30">
+            <svg width="64" height="64" fill="none" stroke="#888890" stroke-width="1" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+          </div>
+          <div class="absolute bottom-2 left-3 right-3">
+            <p class="text-[10px] text-muted uppercase tracking-widest font-semibold">Top Users</p>
+          </div>
+        </div>
+        <div class="p-3 space-y-1.5">
+          <div class="flex items-center gap-2 text-xs py-0.5 border-b border-border/50 pb-1.5">
+            <img src="https://i.pravatar.cc/16?u=john" class="w-4 h-4 rounded-full"/>
+            <span class="truncate font-medium">john_doe</span>
+            <span class="ml-auto text-muted">312</span>
+          </div>
+          <div class="flex items-center gap-2 text-xs py-0.5 border-b border-border/50 pb-1.5">
+            <img src="https://i.pravatar.cc/16?u=sarah" class="w-4 h-4 rounded-full"/>
+            <span class="truncate text-muted">sarah_k</span>
+            <span class="ml-auto text-muted">198</span>
+          </div>
+          <div class="flex items-center gap-2 text-xs">
+            <img src="https://i.pravatar.cc/16?u=mike99" class="w-4 h-4 rounded-full"/>
+            <span class="truncate text-muted">mike99</span>
+            <span class="ml-auto text-muted">143</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Platforms stat card -->
+      <div class="bg-surface border border-border rounded-xl overflow-hidden group cursor-pointer hover:border-border/80 transition-colors">
+        <div class="relative h-28 overflow-hidden bg-surface2">
+          <div class="absolute inset-0 flex items-center justify-center opacity-20">
+            <svg width="64" height="64" fill="none" stroke="#888890" stroke-width="1" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><polyline points="8 21 12 17 16 21"/></svg>
+          </div>
+          <div class="absolute bottom-2 left-3 right-3">
+            <p class="text-[10px] text-muted uppercase tracking-widest font-semibold">Top Platforms</p>
+          </div>
+        </div>
+        <div class="p-3 space-y-1.5">
+          <div class="flex items-center gap-2 text-xs py-0.5 border-b border-border/50 pb-1.5">
+            <span class="text-accent font-bold text-[11px]">1</span>
+            <span class="truncate font-medium">Apple TV</span>
+            <span class="ml-auto text-muted">201</span>
+          </div>
+          <div class="flex items-center gap-2 text-xs py-0.5 border-b border-border/50 pb-1.5">
+            <span class="text-muted font-bold text-[11px]">2</span>
+            <span class="truncate text-muted">Plex Web</span>
+            <span class="ml-auto text-muted">178</span>
+          </div>
+          <div class="flex items-center gap-2 text-xs">
+            <span class="text-muted font-bold text-[11px]">3</span>
+            <span class="truncate text-muted">Android</span>
+            <span class="ml-auto text-muted">89</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- RECENTLY ADDED SECTION -->
+  <div>
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-base font-semibold">Recently Added</h2>
+      <div class="flex items-center gap-2">
+        <div class="flex bg-surface2 border border-border rounded-md p-0.5 text-xs font-medium">
+          <button class="px-3 py-1 rounded bg-accent text-black">All</button>
+          <button class="px-3 py-1 text-muted hover:text-white transition-colors">Movies</button>
+          <button class="px-3 py-1 text-muted hover:text-white transition-colors">TV</button>
+          <button class="px-3 py-1 text-muted hover:text-white transition-colors">Music</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-5 lg:grid-cols-8 xl:grid-cols-10 gap-3" style="max-width:1400px;">
+      <!-- Poster tiles -->
+      <div class="group relative cursor-pointer">
+        <div class="aspect-[2/3] rounded-lg overflow-hidden bg-surface3">
+          <img src="https://image.tmdb.org/t/p/w342/sh7Rg8Er3tFcN9BpKIPOMvALgZd.jpg" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"/>
+        </div>
+        <div class="absolute inset-0 rounded-lg bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-2">
+          <p class="text-[11px] font-semibold leading-tight">Civil War</p>
+          <p class="text-[10px] text-muted">2024</p>
+        </div>
+        <p class="mt-1.5 text-[11px] font-medium truncate">Civil War</p>
+        <p class="text-[10px] text-muted">2d ago</p>
+      </div>
+
+      <div class="group relative cursor-pointer">
+        <div class="aspect-[2/3] rounded-lg overflow-hidden bg-surface3">
+          <img src="https://image.tmdb.org/t/p/w342/yQvGrMoipbRoddT0ZR8tPoR7NfX.jpg" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"/>
+        </div>
+        <p class="mt-1.5 text-[11px] font-medium truncate">Interstellar</p>
+        <p class="text-[10px] text-muted">3d ago</p>
+      </div>
+
+      <div class="group relative cursor-pointer">
+        <div class="aspect-[2/3] rounded-lg overflow-hidden bg-surface3">
+          <img src="https://image.tmdb.org/t/p/w342/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"/>
+        </div>
+        <p class="mt-1.5 text-[11px] font-medium truncate">The Substance</p>
+        <p class="text-[10px] text-muted">4d ago</p>
+      </div>
+
+      <div class="group relative cursor-pointer">
+        <div class="aspect-[2/3] rounded-lg overflow-hidden bg-surface3">
+          <img src="https://image.tmdb.org/t/p/w342/eKfVzzEazSIjJMrw9ADa2x8ksLz.jpg" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"/>
+        </div>
+        <p class="mt-1.5 text-[11px] font-medium truncate">Conclave</p>
+        <p class="text-[10px] text-muted">5d ago</p>
+      </div>
+
+      <div class="group relative cursor-pointer">
+        <div class="aspect-[2/3] rounded-lg overflow-hidden bg-surface3">
+          <img src="https://image.tmdb.org/t/p/w342/ztkUQFLlC19CCMYHW9o1zWhJRNq.jpg" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"/>
+        </div>
+        <p class="mt-1.5 text-[11px] font-medium truncate">Shogun S01</p>
+        <p class="text-[10px] text-muted">1w ago</p>
+      </div>
+
+      <div class="group relative cursor-pointer hidden lg:block">
+        <div class="aspect-[2/3] rounded-lg overflow-hidden bg-surface3">
+          <img src="https://image.tmdb.org/t/p/w342/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"/>
+        </div>
+        <p class="mt-1.5 text-[11px] font-medium truncate">Alien: Romulus</p>
+        <p class="text-[10px] text-muted">1w ago</p>
+      </div>
+
+      <div class="group relative cursor-pointer hidden lg:block">
+        <div class="aspect-[2/3] rounded-lg overflow-hidden bg-surface3">
+          <img src="https://image.tmdb.org/t/p/w342/1EwNyiiNFd863H4e8nWEzutnZD7.jpg" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"/>
+        </div>
+        <p class="mt-1.5 text-[11px] font-medium truncate">Longlegs</p>
+        <p class="text-[10px] text-muted">1w ago</p>
+      </div>
+
+      <div class="group relative cursor-pointer hidden xl:block">
+        <div class="aspect-[2/3] rounded-lg overflow-hidden bg-surface3">
+          <img src="https://image.tmdb.org/t/p/w342/pjnD08FlMAIXsfOLKQbvmO0f0MD.jpg" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"/>
+        </div>
+        <p class="mt-1.5 text-[11px] font-medium truncate">Twisters</p>
+        <p class="text-[10px] text-muted">2w ago</p>
+      </div>
+
+      <div class="group relative cursor-pointer hidden xl:block">
+        <div class="aspect-[2/3] rounded-lg overflow-hidden bg-surface3">
+          <img src="https://image.tmdb.org/t/p/w342/oil3EZwKFp3CWxZnfGfGglesvm9.jpg" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"/>
+        </div>
+        <p class="mt-1.5 text-[11px] font-medium truncate">Hit Man</p>
+        <p class="text-[10px] text-muted">2w ago</p>
+      </div>
+
+      <div class="group relative cursor-pointer hidden xl:block">
+        <div class="aspect-[2/3] rounded-lg overflow-hidden bg-surface3">
+          <img src="https://image.tmdb.org/t/p/w342/nAU74GmpUk7t5iklEp3bufwDq4n.jpg" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"/>
+        </div>
+        <p class="mt-1.5 text-[11px] font-medium truncate">A Quiet Place</p>
+        <p class="text-[10px] text-muted">2w ago</p>
+      </div>
+    </div>
+  </div><!-- /recently-added -->
+
+
+</main>
+
+<script>
+function openCmd(){document.getElementById('cmd-overlay').classList.add('open');document.getElementById('cmd-input').focus();}
+function closeCmd(){document.getElementById('cmd-overlay').classList.remove('open');document.getElementById('cmd-input').value='';}
+document.addEventListener('keydown',function(e){
+  if((e.metaKey||e.ctrlKey)&&e.key==='k'){e.preventDefault();openCmd();}
+  if(e.key==='Escape')closeCmd();
+});
+</script>
+
+
+
+
+<!-- ═══════════════════════════════════════════
+<!-- ═══════════════════════════════════════════
+     OPTION A: ANCHORED POPOVER (Card 1)
+═══════════════════════════════════════════ -->
+<div id="popover"
+     class="fixed z-50 hidden"
+     style="width:380px; filter: drop-shadow(0 24px 48px rgba(0,0,0,.8));">
+  <div class="bg-surface2 border border-border/60 rounded-2xl overflow-hidden">
+
+    <!-- Header: full-bleed backdrop with strong overlay, poster left, title right -->
+    <div class="relative h-28 flex-shrink-0 overflow-hidden">
+      <img id="pop-backdrop" src="" class="absolute inset-0 w-full h-full object-cover"/>
+      <!-- Strong dark gradient so text is always legible -->
+      <div class="absolute inset-0" style="background: linear-gradient(135deg, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.55) 60%, rgba(0,0,0,0.2) 100%);"></div>
+      <!-- Accent tint strip at top -->
+      <div class="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-accent via-accent/60 to-transparent"></div>
+
+      <!-- Close button -->
+      <button onclick="closePopover()"
+              class="absolute top-2.5 right-2.5 w-6 h-6 rounded-full bg-black/60 border border-white/10 flex items-center justify-center text-muted hover:text-white transition-colors z-10">
+        <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+
+      <!-- Poster + title block -->
+      <div class="absolute inset-0 flex items-center gap-3 px-3.5">
+        <img id="pop-poster" src="" class="h-20 w-14 object-cover rounded-lg border border-white/15 shadow-xl flex-shrink-0"/>
+        <div class="min-w-0 flex-1">
+          <!-- State badge inline with title -->
+          <div class="flex items-center gap-1.5 mb-1">
+            <span id="pop-state-badge" class="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border"></span>
+            <span id="pop-decision-badge" class="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border"></span>
+          </div>
+          <p id="pop-title" class="font-bold text-[15px] leading-tight text-white drop-shadow-lg"></p>
+          <p id="pop-subtitle" class="text-xs text-white/70 mt-0.5 drop-shadow"></p>
+          <!-- User line in header -->
+          <div class="flex items-center gap-1.5 mt-2">
+            <img id="pop-avatar" src="" class="w-4 h-4 rounded-full border border-white/20 flex-shrink-0"/>
+            <span id="pop-user" class="text-[11px] text-white/80 font-medium"></span>
+            <span class="text-white/30 text-[10px]">·</span>
+            <span id="pop-platform" class="text-[11px] text-white/50"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress bar + timing — sits between header and body, clear separation -->
+    <div class="px-3.5 py-2.5 bg-surface3/60 border-b border-border/60">
+      <div class="relative h-1.5 bg-black/40 rounded-full overflow-hidden">
+        <div id="pop-buf" class="absolute inset-y-0 left-0 bg-white/10 rounded-full transition-all"></div>
+        <div id="pop-prog" class="absolute inset-y-0 left-0 bg-accent rounded-full transition-all"></div>
+      </div>
+      <div class="flex justify-between items-center mt-1.5">
+        <span id="pop-pos" class="text-[11px] text-muted font-mono"></span>
+        <span id="pop-pct" class="text-[10px] font-semibold text-accent"></span>
+        <span id="pop-eta" class="text-[11px] text-muted font-mono"></span>
+      </div>
+    </div>
+
+    <!-- Body: three labeled sections -->
+    <div class="px-3.5 py-3 space-y-3">
+
+      <!-- Stream decisions -->
+      <div>
+        <p class="text-[9px] font-bold uppercase tracking-[.1em] text-muted/70 mb-1.5">Stream Decisions</p>
+        <div class="bg-surface/70 rounded-xl border border-border/40 overflow-hidden divide-y divide-border/40">
+          <div class="flex items-center justify-between px-3 py-2">
+            <span class="text-[11px] text-muted">Video</span>
+            <span id="pop-video" class="text-[11px] font-medium text-right ml-4 leading-tight"></span>
+          </div>
+          <div class="flex items-center justify-between px-3 py-2">
+            <span class="text-[11px] text-muted">Audio</span>
+            <span id="pop-audio" class="text-[11px] font-medium text-right ml-4"></span>
+          </div>
+          <div id="pop-sub-row" class="flex items-center justify-between px-3 py-2">
+            <span class="text-[11px] text-muted">Subtitle</span>
+            <span id="pop-subtitle-val" class="text-[11px] font-medium text-right ml-4"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quality + network in two columns -->
+      <div>
+        <p class="text-[9px] font-bold uppercase tracking-[.1em] text-muted/70 mb-1.5">Quality &amp; Network</p>
+        <div class="grid grid-cols-2 gap-2">
+          <div class="bg-surface/70 rounded-xl border border-border/40 px-3 py-2">
+            <p class="text-[10px] text-muted">Quality</p>
+            <p id="pop-quality" class="text-sm font-semibold mt-0.5"></p>
+          </div>
+          <div class="bg-surface/70 rounded-xl border border-border/40 px-3 py-2">
+            <p class="text-[10px] text-muted">Bandwidth</p>
+            <p id="pop-bw" class="text-sm font-semibold mt-0.5"></p>
+          </div>
+          <div class="bg-surface/70 rounded-xl border border-border/40 px-3 py-2">
+            <p class="text-[10px] text-muted">Location</p>
+            <p id="pop-location" class="text-sm font-semibold mt-0.5"></p>
+          </div>
+          <div class="bg-surface/70 rounded-xl border border-border/40 px-3 py-2">
+            <p class="text-[10px] text-muted">IP Address</p>
+            <p id="pop-ip" class="text-[12px] font-semibold font-mono mt-0.5 truncate"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Terminate -->
+      <button onclick="showPopTerminate()"
+              id="pop-terminate-btn"
+              class="w-full flex items-center justify-center gap-1.5 py-2.5 bg-danger/10 border border-danger/20 rounded-xl text-xs font-semibold text-danger hover:bg-danger/20 transition-colors">
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+        Terminate Stream
+      </button>
+      <div id="pop-terminate-form" class="hidden space-y-2">
+        <input type="text" placeholder="Message to viewer (optional)"
+               class="w-full bg-surface3 border border-border rounded-xl px-3 py-2 text-xs text-white placeholder-muted outline-none focus:border-danger/50"/>
+        <div class="flex gap-2">
+          <button onclick="hidePopTerminate()" class="flex-1 py-2 bg-surface3 border border-border rounded-xl text-xs text-muted hover:text-white transition-colors">Cancel</button>
+          <button class="flex-1 py-2 bg-danger rounded-xl text-xs font-semibold text-white hover:opacity-90">Terminate</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <!-- Arrow pointer -->
+  <div id="pop-arrow" class="absolute w-3 h-3 bg-surface2 rotate-45" style="border:1px solid rgba(46,46,51,0.6);"></div>
+</div>
+
+<script>
+const STREAMS = {
+  dune: {
+    title:'Dune: Part Two', subtitle:'2024 · Movie',
+    backdrop:'https://image.tmdb.org/t/p/w1280/eZ239CUp1d6OryZEBPnO2n87gMG.jpg',
+    poster:'https://image.tmdb.org/t/p/w342/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg',
+    user:'john_doe', avatar:'https://i.pravatar.cc/36?u=john',
+    device:'Plex Web · Chrome',
+    state:'playing', stateColor:'#e5a00d',
+    decisionLabel:'Transcode', decisionColor:'#e5a00d',
+    decision:'Transcode (3.2×)', container:'MKV → TS',
+    video:'HEVC HW 4K HDR → H264 HW 1080p SDR',
+    audio:'TrueHD Atmos 7.1 (Direct)',
+    subtitle:'English SRT (Direct)',
+    quality:'20 Mbps', bw:'20.0 Mbps', location:'WAN 🔒', ip:'203.0.113.42',
+    pos:'1:42:10', duration:'2:46:00', pct:61, buf:82, eta:'ETA 9:14 PM'
+  },
+  bb: {
+    title:'Breaking Bad', subtitle:'S04 · E10 — Salud',
+    backdrop:'https://image.tmdb.org/t/p/w1280/tsRy63Mu5cu8etL1X7ZLyf7UP1M.jpg',
+    poster:'https://image.tmdb.org/t/p/w342/ztkUQFLlC19CCMYHW9o1zWhJRNq.jpg',
+    user:'sarah_k', avatar:'https://i.pravatar.cc/36?u=sarah',
+    device:'Apple TV · tvOS 17',
+    state:'playing', stateColor:'#3fb950',
+    decisionLabel:'Direct Play', decisionColor:'#3fb950',
+    decision:'Direct Play', container:'MKV (Direct)',
+    video:'H264 1080p (Direct)', audio:'AC3 5.1 EN (Direct)', subtitle:'None',
+    quality:'8 Mbps', bw:'8.0 Mbps', location:'LAN 🔒', ip:'192.168.1.22',
+    pos:'18:32', duration:'48:00', pct:38, buf:38, eta:'ETA 9:41 PM'
+  },
+  brhap: {
+    title:'Bohemian Rhapsody', subtitle:'Queen · A Night at the Opera',
+    backdrop:'https://image.tmdb.org/t/p/w1280/dcvbs8z0GEXslC1kCT77x19XDeR.jpg',
+    poster:'https://image.tmdb.org/t/p/w342/lHu1wtNaczFPGFDTrjCSzeLPTKN.jpg',
+    user:'mike99', avatar:'https://i.pravatar.cc/36?u=mike99',
+    device:'Plex for Android · Pixel 8',
+    state:'paused', stateColor:'#888890',
+    decisionLabel:'Direct Stream', decisionColor:'#58a6ff',
+    decision:'Direct Stream', container:'FLAC (Direct)',
+    video:null, audio:'FLAC → AAC (Stream)', subtitle:null,
+    quality:'Original', bw:'1.4 Mbps', location:'WAN', ip:'198.51.100.7',
+    pos:'3:18', duration:'5:55', pct:55, buf:55, eta:'Paused'
+  }
+};
+
+// ── POPOVER ──────────────────────────────────────────────────────
+let popoverOpen = false;
+
+function openPopover(e, id) {
+  e.stopPropagation();
+  const s = STREAMS[id];
+  const card = document.getElementById('card-' + id);
+  const pop  = document.getElementById('popover');
+  const arrow = document.getElementById('pop-arrow');
+
+  // Header
+  document.getElementById('pop-backdrop').src          = s.backdrop;
+  document.getElementById('pop-poster').src            = s.poster;
+  document.getElementById('pop-title').textContent     = s.title;
+  document.getElementById('pop-subtitle').textContent  = s.subtitle;
+  document.getElementById('pop-avatar').src            = s.avatar;
+  document.getElementById('pop-user').textContent      = s.user;
+  document.getElementById('pop-platform').textContent  = s.device.split('·')[0].trim();
+
+  // State badge
+  const sb = document.getElementById('pop-state-badge');
+  const stateIcons = { playing:'▶', paused:'⏸', buffering:'⟳' };
+  sb.textContent = (stateIcons[s.state] || '?') + ' ' + s.state.charAt(0).toUpperCase() + s.state.slice(1);
+  sb.style.color = s.stateColor; sb.style.background = s.stateColor+'20'; sb.style.borderColor = s.stateColor+'40';
+
+  // Decision badge
+  const db = document.getElementById('pop-decision-badge');
+  db.textContent = s.decisionLabel;
+  db.style.color = s.decisionColor; db.style.background = s.decisionColor+'20'; db.style.borderColor = s.decisionColor+'40';
+
+  // Progress
+  document.getElementById('pop-buf').style.width  = s.buf + '%';
+  document.getElementById('pop-prog').style.width = s.pct + '%';
+  document.getElementById('pop-pos').textContent  = s.pos + ' / ' + s.duration;
+  document.getElementById('pop-pct').textContent  = s.pct + '%';
+  document.getElementById('pop-eta').textContent  = s.eta;
+
+  // Stream decisions
+  document.getElementById('pop-video').textContent       = s.video || '—';
+  document.getElementById('pop-audio').textContent       = s.audio;
+  const subRow = document.getElementById('pop-sub-row');
+  if (s.subtitle) { document.getElementById('pop-subtitle-val').textContent = s.subtitle; subRow.style.display=''; }
+  else { subRow.style.display='none'; }
+
+  // Quality + network
+  document.getElementById('pop-quality').textContent  = s.quality;
+  document.getElementById('pop-bw').textContent        = s.bw;
+  document.getElementById('pop-location').textContent  = s.location;
+  document.getElementById('pop-ip').textContent        = s.ip;
+
+  hidePopTerminate();
+
+  // Position: right of card on large screens, below on small
+  pop.classList.remove('hidden');
+  const rect = card.getBoundingClientRect();
+  const pw = pop.offsetWidth;
+  const ph = pop.offsetHeight;
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const GAP = 10;
+
+  let left, top, arrowSide;
+
+  if (rect.right + pw + GAP < vw) {
+    // Position to the right
+    left = rect.right + GAP;
+    top  = Math.min(rect.top, vh - ph - 16);
+    top  = Math.max(top, 8);
+    arrowSide = 'left';
+    arrow.style.cssText = 'position:absolute;width:12px;height:12px;background:#1c1c1f;border-left:1px solid #2e2e33;border-bottom:1px solid #2e2e33;transform:rotate(45deg);left:-7px;top:' + (rect.top - top + 28) + 'px;';
+  } else {
+    // Position below
+    left = Math.min(rect.left, vw - pw - 16);
+    left = Math.max(left, 8);
+    top  = rect.bottom + GAP;
+    arrowSide = 'top';
+    arrow.style.cssText = 'position:absolute;width:12px;height:12px;background:#1c1c1f;border-left:1px solid #2e2e33;border-top:1px solid #2e2e33;transform:rotate(45deg);top:-7px;left:' + (rect.left - left + 40) + 'px;';
+  }
+
+  pop.style.left = left + 'px';
+  pop.style.top  = top + 'px';
+  popoverOpen = true;
+}
+
+function closePopover() {
+  document.getElementById('popover').classList.add('hidden');
+  popoverOpen = false;
+}
+
+function showPopTerminate() {
+  document.getElementById('pop-terminate-btn').classList.add('hidden');
+  document.getElementById('pop-terminate-form').classList.remove('hidden');
+}
+function hidePopTerminate() {
+  document.getElementById('pop-terminate-btn').classList.remove('hidden');
+  document.getElementById('pop-terminate-form').classList.add('hidden');
+}
+
+document.addEventListener('click', function(e) {
+  if (popoverOpen && !document.getElementById('popover').contains(e.target)) closePopover();
+});
+
+
+// ── Shared ESC ────────────────────────────────────────────────────
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    if (document.getElementById('cmd-overlay').classList.contains('open')) return;
+    closePopover();
+  }
+});
+</script>
+
+</body>
+</html>
