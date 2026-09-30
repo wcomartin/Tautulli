@@ -18,3 +18,4 @@ material are retained in [`../other/`](../other/).
 | [0010](0010-incremental-react-interface-scope.md) | Incremental React rollout scope |
 | [0011](0011-pulse-interface-identity.md) | Pulse interface identity |
 | [0012](0012-remote-development-api-and-image-proxy.md) | Remote development API and image proxy |
+| [0013](0013-hybrid-tailwind-component-styling.md) | Hybrid Tailwind and component styling |
