@@ -119,7 +119,7 @@ export function DashboardPage() {
             </div>
           </div>
           {/* ── Row 2: Media stat cards ── */}
-          <div className="library-stat-grid" style={{display: 'grid', gap: 12, minWidth: 0}}>
+          <div className="grid min-w-0 grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 min-[1440px]:grid-cols-4">
             {/* Top Movies */}
             <div className="bg-surface border border-border rounded-xl overflow-hidden" style={{minWidth: 0, display: 'flex', flexDirection: 'column'}}>
               <div className="flex items-center justify-between px-4 pt-3 pb-2 border-b border-border">
