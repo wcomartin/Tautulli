@@ -36,7 +36,7 @@ function StreamCard({ stream }: { stream: StreamFixture }) {
     <div className="px-3 pb-3 flex items-center gap-2 border-t border-border mt-auto">
       <div className="w-6 h-6 rounded-full border border-border mt-2 bg-surface3 flex items-center justify-center text-[10px]">{stream.user[0].toUpperCase()}</div>
       <div className="flex-1 mt-2"><span className="text-xs font-medium">{stream.user}</span><span className="text-[10px] text-muted ml-1.5">{stream.device}</span></div>
-      <button className="mt-2 flex h-6 items-center gap-1 px-2 bg-danger/10 border border-danger/20 rounded-md text-[10px] leading-none font-semibold text-danger hover:bg-danger/20 transition-colors flex-shrink-0" type="button"><svg width="9" height="9" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="m15 9-6 6M9 9l6 6" /></svg>Terminate</button>
+      <button className="mt-2 flex h-6 items-center gap-1 px-2 bg-danger/10 border border-danger/20 rounded-md text-[10px] leading-none font-semibold text-danger hover:bg-danger/20 transition-colors flex-shrink-0" type="button"><svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="m15 9-6 6M9 9l6 6" /></svg>Terminate</button>
     </div>
   </div>
 }
