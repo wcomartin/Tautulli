@@ -6,15 +6,18 @@ Planning documents and mocks for the new Tautulli frontend.
 
 ```
 frontend-redesign/
-├── docs/       # Planning documents, feature specs, API notes
+├── docs/
+│   ├── adr/    # Durable architecture and product decisions
+│   └── other/  # Feature specs, design references, planning, and feedback
 └── mocks/      # Wireframes, mockups, component sketches
 ```
 
 ## Current working documents
 
-- [Implementation plan](docs/implementation-plan.md)
-- [Design language](docs/design-language.md)
-- [Feedback tracker](docs/feedback-tracker.md)
+- [Architecture decisions](docs/adr/README.md)
+- [Implementation plan](docs/other/implementation-plan.md)
+- [Design language](docs/other/design-language.md)
+- [Feedback tracker](docs/other/feedback-tracker.md)
 - [Dashboard v4 mock](mocks/dashboard-v4.html) — merged working version
 - [Dashboard v4 library overview comparison](mocks/dashboard-v4-library-overview.html)
 - [Dashboard v4 seven-library comparison](mocks/dashboard-v4-seven-libraries.html)

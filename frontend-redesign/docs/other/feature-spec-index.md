@@ -23,10 +23,10 @@ Each document covers one page or major feature area.
 | [07-library-detail.md](07-library-detail.md) | Library Detail | `/library?section_id=X` |
 | [08-graphs.md](08-graphs.md) | Graphs & Analytics | `/graphs` |
 | [09-media-info.md](09-media-info.md) | Media Info / Item Detail | `/info?rating_key=X` |
-| [10-recently-added.md](10-recently-added.md) | Recently Added | `/recently_added` |
-| [11-search.md](11-search.md) | Search | `/search` |
-| [12-logs.md](12-logs.md) | Logs | `/logs` |
-| [13-sync.md](13-sync.md) | Sync | `/sync` |
+| [10-13-remaining-pages.md](10-13-remaining-pages.md) | Recently Added | `/recently_added` |
+| [10-13-remaining-pages.md](10-13-remaining-pages.md) | Search | `/search` |
+| [10-13-remaining-pages.md](10-13-remaining-pages.md) | Logs | `/logs` |
+| [10-13-remaining-pages.md](10-13-remaining-pages.md) | Sync | `/sync` |
 
 ## Shared Components
 
