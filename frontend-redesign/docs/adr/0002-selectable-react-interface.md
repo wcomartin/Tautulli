@@ -1,4 +1,4 @@
-# ADR 0002: Ship the React Redesign as a Selectable Interface
+# ADR 0002: Ship Pulse as a Selectable Interface
 
 - **Status:** Accepted
 - **Date:** 2026-09-30
@@ -11,15 +11,15 @@ rollback, and staged adoption unnecessarily risky.
 
 ## Decision
 
-Ship the React redesign as a separate selectable interface beside the default
-interface. The React build will ultimately be deployed to a dedicated
-`data/interfaces/react/` directory (or another final stable interface name).
+Ship Pulse, the React redesign, as a separate selectable interface beside the
+default interface. The Pulse build will ultimately be deployed to the dedicated
+`data/interfaces/pulse/` directory.
 
 The existing `data/interfaces/default` directory remains unchanged and remains
 the fallback interface. Selection must extend Tautulli's existing interface
 setting rather than introduce a frontend-only preference.
 
-The React interface is distributed as a self-contained interface package. A
+Pulse is distributed as a self-contained interface package. A
 user can install it by placing its templates and compiled assets in
 `data/interfaces/<interface-name>/` and selecting that interface through the
 existing Tautulli setting.

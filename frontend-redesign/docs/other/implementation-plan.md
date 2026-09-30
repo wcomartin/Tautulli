@@ -42,13 +42,12 @@ The redesign will be shipped as a second Tautulli interface, while
 preferable to a route-by-route migration because users can opt in, compare the
 two UIs, and roll back by changing the existing interface setting.
 
-The new interface should have its own stable name (for example `react`) and
-live beside `default`:
+The new interface is named `pulse` and lives beside `default`:
 
 ```text
 data/interfaces/
 ├── default/             # existing interface: do not modify for redesign work
-└── react/               # new selectable interface and its built assets
+└── pulse/               # Pulse interface and its built assets
 ```
 
 Tautulli already has an `INTERFACE` configuration value, uses it when creating
@@ -81,8 +80,8 @@ frontend-redesign/
 └── mocks/
 ```
 
-The build output should be copied to `data/interfaces/react/` (or the final
-agreed interface name), never into `data/interfaces/default`. This gives the
+The build output should be copied to `data/interfaces/pulse/`, never into
+`data/interfaces/default`. This gives the
 release a natural rollback path and makes it possible to test both interfaces
 from the same installation.
 
@@ -239,7 +238,7 @@ Add a repository-level frontend build step that runs before packaging:
 1. install Node using a pinned major version in CI;
 2. run `npm ci` from `frontend-redesign/app`;
 3. run typecheck, lint, unit tests, and the production build;
-4. copy the generated assets into the runtime `data/interfaces/react`
+4. copy the generated assets into the runtime `data/interfaces/pulse`
    directory;
 5. verify that no source maps, development server references, or environment
    URLs are accidentally shipped (source maps may be retained only in a
@@ -329,8 +328,8 @@ self-hosted deployments.
 
 ## Decisions to confirm before coding
 
-1. What stable interface name should be used (`react`, `redesign`, or another
-   name), and should it be selectable in the existing settings UI immediately?
+1. Pulse is the stable interface name (`pulse`). Confirm whether it should be
+   selectable in the existing settings UI immediately.
 2. Should generated assets be committed, attached as release artifacts, or
    built in every packaging workflow?
 3. Which supported browsers and minimum Node/npm versions should CI enforce?
@@ -340,7 +339,7 @@ self-hosted deployments.
 5. Which existing undocumented JSON endpoints are stable enough to consume,
    and which need a typed `/api/v2` addition first?
 
-The recommended defaults are: preserve `default` exactly, add a selectable
-`react` interface, CI-generated assets, a pinned current LTS Node version, an
-interface-aware CherryPy fallback, and API contracts backed by fixtures before
-component work begins.
+The selected defaults are: preserve `default` exactly, add the selectable
+`pulse` interface, CI-generated assets, a pinned current LTS Node version,
+server-routed React pages initially (ADR 0007), and API contracts backed by
+fixtures before component work begins.
