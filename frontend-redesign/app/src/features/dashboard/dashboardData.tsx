@@ -50,3 +50,85 @@ export const libraryOverview = [
   ['Music', 'Artist library', '8,420 tracks', '94 added', '37 plays'],
   ['Home Videos', 'Video library', '92 videos', '4 added', '12 plays'],
 ] as const
+
+export type LibraryStatistic = {
+  id: string
+  title: string
+  period: string
+  featured: {
+    title: string
+    subtitle: string
+    count: number
+    backdrop?: string
+    image?: string
+    shape: 'poster' | 'cover' | 'placeholder'
+    placeholder?: string
+    layout?: 'center' | 'bottom'
+  }
+  entries: Array<{
+    title: string
+    count: number
+    progress?: number
+    image?: string
+    shape?: 'poster' | 'cover' | 'placeholder'
+    placeholder?: string
+  }>
+}
+
+export const libraryStatistics: LibraryStatistic[] = [
+  {
+    id: 'movies', title: 'Top Movies', period: 'Last 30 days',
+    featured: { title: 'Oppenheimer', subtitle: '2023', count: 47, backdrop: 'https://image.tmdb.org/t/p/w1280/neeNHeXjMF5fXoCJRsOmkNGC7q.jpg', image: 'https://image.tmdb.org/t/p/w342/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg', shape: 'poster' },
+    entries: [
+      { title: 'Dune: Part Two', count: 38, progress: 81, image: 'https://image.tmdb.org/t/p/w342/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg', shape: 'poster' },
+      { title: 'The Substance', count: 31, progress: 66, image: 'https://image.tmdb.org/t/p/w342/lqoMzCcZYEFK729d6qzt349fB4o.jpg', shape: 'poster' },
+      { title: 'Conclave', count: 26, progress: 55, image: 'https://image.tmdb.org/t/p/w342/m5x8D0bZ3eKqIVWZ5y7TnZ2oTVg.jpg', shape: 'poster' },
+      { title: 'Civil War', count: 21, progress: 44, image: 'https://image.tmdb.org/t/p/w342/sh7Rg8Er3tFcN9BpKIPOMvALgZd.jpg', shape: 'poster' },
+    ],
+  },
+  {
+    id: 'tv', title: 'Top TV Shows', period: 'Last 30 days',
+    featured: { title: 'Breaking Bad', subtitle: 'Drama', count: 124, backdrop: 'https://image.tmdb.org/t/p/w1280/tsRy63Mu5cu8etL1X7ZLyf7UP1M.jpg', image: 'https://image.tmdb.org/t/p/w342/ztkUQFLlC19CCMYHW9o1zWhJRNq.jpg', shape: 'poster' },
+    entries: [
+      { title: 'The Bear', count: 89, progress: 72, image: 'https://image.tmdb.org/t/p/w342/eKfVzzEazSIjJMrw9ADa2x8ksLz.jpg', shape: 'poster' },
+      { title: 'Shōgun', count: 67, progress: 54, image: 'https://image.tmdb.org/t/p/w342/7O4iVfOMQmdCSxhOg1WnzG1AgYT.jpg', shape: 'poster' },
+      { title: 'One Piece', count: 49, progress: 40, image: 'https://image.tmdb.org/t/p/w342/dB4EDhre2dsC2kxYDavyKWqLQwi.jpg', shape: 'poster' },
+      { title: 'The Bear', count: 38, progress: 31, image: 'https://image.tmdb.org/t/p/w342/eKfVzzEazSIjJMrw9ADa2x8ksLz.jpg', shape: 'poster' },
+    ],
+  },
+  {
+    id: 'music', title: 'Top Music', period: 'Last 30 days',
+    featured: { title: 'Taylor Swift', subtitle: 'The Eras Tour', count: 214, backdrop: 'https://image.tmdb.org/t/p/w342/jf3YO8hOqGHCupsREf5qymYq1n.jpg', image: 'https://image.tmdb.org/t/p/w342/jf3YO8hOqGHCupsREf5qymYq1n.jpg', shape: 'cover' },
+    entries: [
+      { title: 'Queen', count: 154, progress: 72, image: 'https://image.tmdb.org/t/p/w342/lHu1wtNaczFPGFDTrjCSzeLPTKN.jpg', shape: 'cover' },
+      { title: 'Elton John', count: 118, progress: 55, image: 'https://image.tmdb.org/t/p/w342/f4FF18ia7yTvHf2izNrHqBmgH8U.jpg', shape: 'cover' },
+      { title: 'Elvis Presley', count: 86, progress: 40, image: 'https://image.tmdb.org/t/p/w342/qBOKWqAFbveZ4ryjJJwbie6tXkQ.jpg', shape: 'cover' },
+      { title: 'Whitney Houston', count: 62, progress: 29, image: 'https://image.tmdb.org/t/p/w342/rEHb3f5wrLuDMHQDfirlwcqA3NT.jpg', shape: 'cover' },
+    ],
+  },
+  {
+    id: 'home-videos', title: 'Home Videos', period: 'Last 30 days',
+    featured: { title: 'Summer 2024', subtitle: 'Family · Jul 2024', count: 43, shape: 'placeholder', placeholder: '▶', layout: 'bottom' },
+    entries: [
+      { title: 'Christmas 2023', count: 28, progress: 65, shape: 'placeholder', placeholder: '▶' },
+      { title: 'Spring Break 2024', count: 19, progress: 44, shape: 'placeholder', placeholder: '▶' },
+      { title: 'Birthday Party', count: 13, progress: 30, shape: 'placeholder', placeholder: '▶' },
+      { title: 'Graduation 2024', count: 8, progress: 19, shape: 'placeholder', placeholder: '▶' },
+    ],
+  },
+  {
+    id: 'documentaries', title: 'Documentaries', period: 'Last 30 days',
+    featured: { title: 'Planet Earth III', subtitle: 'Nature', count: 34, shape: 'placeholder', placeholder: '▣' },
+    entries: [{ title: 'Free Solo', count: 27 }, { title: 'The Last Dance', count: 21 }, { title: 'Cosmos', count: 16 }],
+  },
+  {
+    id: 'anime', title: 'Anime', period: 'Last 30 days',
+    featured: { title: 'One Piece', subtitle: 'Adventure', count: 89, shape: 'placeholder', placeholder: '▤' },
+    entries: [{ title: 'Shōgun', count: 67 }, { title: 'Jujutsu Kaisen', count: 53 }, { title: 'Frieren', count: 41 }],
+  },
+  {
+    id: 'kids', title: 'Kids', period: 'Last 30 days',
+    featured: { title: 'Moana', subtitle: 'Family', count: 72, shape: 'placeholder', placeholder: '★' },
+    entries: [{ title: 'Toy Story', count: 64 }, { title: 'Frozen', count: 51 }, { title: 'Paddington', count: 38 }],
+  },
+]
